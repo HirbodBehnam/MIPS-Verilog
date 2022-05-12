@@ -1,3 +1,5 @@
+`include "alu_opts.sv"
+
 module ALU(
     input wire [3:0] opt,
     input wire [31:0] a,
@@ -11,42 +13,46 @@ module ALU(
     output reg carry
 );
 
+    // Temp value for carry calculation
+    reg [31:0] temp;
+
     // Set simple flags
     assign zero = out == 0;
     assign negative = out[31] == 1;
     
-    // Carry is from https://github.com/jmahler/mips-cpu/blob/8e810a3dd2c97a06cb590747517afb0314b3f7ce/alu.v#L25
+    // Carry from https://electronics.stackexchange.com/a/509341
 
     // The operation itself
-    always_comb begin
+    always @(*) begin
         carry = 0; // clear carry at first
         case (opt)
             // Simple math arithmetic
-            4'b0000: begin // add
+            `ALU_ADD: begin // add
                 out = a + b;
-                carry = (a[31] == b[31] && out[31] != a[31]) ? 1 : 0;
+                carry = (a[31]^b[31]) ? 0: (out[31]^a[31]);
             end
-            4'b0001: begin
+            `ALU_SUB: begin
                 out = a - b; // subtract
-                carry = (a[31] == b[31] && out[31] != a[31]) ? 1 : 0;
+                temp = (~b) + 1;
+                carry = (a[31]^temp[31]) ? 0: (out[31]^a[31]);
             end
-            4'b0010: out = a * b; // mult
-            4'b0011: out = a / b; // div
+            `ALU_MULT: out = a * b; // mult
+            `ALU_DIV: out = a / b; // div
             // Bit operations
-            4'b0100: out = a ^ b;  // xor
-            4'b0101: out = a & b;  // and
-            4'b0110: out = a | b;  // or
-            4'b0111: out = a ~| b; // nor
+            `ALU_XOR: out = a ^ b;  // xor
+            `ALU_AND: out = a & b;  // and
+            `ALU_OR: out = a | b;  // or
+            `ALU_NOR: out = a ~| b; // nor
             // Shift operations
-            4'b1000: out = a << b;  // unsigned shift
-            4'b1001: out = a >> b;  // unsigned shift
-            4'b1010: out = a <<< b; // signed shift
-            4'b1011: out = a >>> b; // signed shift
+            `ALU_UNSIGNED_SHIFT_LEFT: out = a << b;  // unsigned shift
+            `ALU_UNSIGNED_SHIFT_RIGHT: out = a >> b;  // unsigned shift
+            `ALU_SIGNED_SHIFT_LEFT: out = a <<< b; // signed shift
+            `ALU_SIGNED_SHIFT_RIGHT: out = a >>> b; // signed shift
             // Comparition
-            4'b1100: out = a > b ? 1 : 0;
-            4'b1101: out = a < b ? 1 : 0;
-            4'b1110: out = a >= b ? 1 : 0;
-            4'b1111: out = a <= b ? 1 : 0;
+            `ALU_COMP_GT: out = a > b ? 1 : 0;
+            `ALU_COMP_LT: out = a < b ? 1 : 0;
+            `ALU_COMP_GE: out = a >= b ? 1 : 0;
+            `ALU_ADD_LE: out = a <= b ? 1 : 0;
             default: out = 0;
         endcase
     end
