@@ -33,7 +33,14 @@ module ALU_Testbench;
         out_expected = a * b;
         opt = `ALU_MULT;
         #10;
-        $display("%d - %d = %d (%d) | carry = %d zero = %d negative = %d", $signed(a), $signed(b), $signed(out), $signed(out_expected), carry, zero, negative);
+        $display("%d * %d = %d (%d) | carry = %d zero = %d negative = %d", $signed(a), $signed(b), $signed(out), $signed(out_expected), carry, zero, negative);
+        #10;
+        a = 12;
+        b = -34;
+        out_expected = 1;
+        opt = `ALU_COMP_GE;
+        #10;
+        $display("%d > %d = %d (%d) | carry = %d zero = %d negative = %d", $signed(a), $signed(b), $signed(out), $signed(out_expected), carry, zero, negative);
         $finish;
     end
 endmodule

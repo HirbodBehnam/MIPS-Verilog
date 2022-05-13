@@ -49,10 +49,10 @@ module ALU(
             `ALU_SIGNED_SHIFT_LEFT: out = a <<< b; // signed shift
             `ALU_SIGNED_SHIFT_RIGHT: out = a >>> b; // signed shift
             // Comparition
-            `ALU_COMP_GT: out = a > b ? 1 : 0;
-            `ALU_COMP_LT: out = a < b ? 1 : 0;
-            `ALU_COMP_GE: out = a >= b ? 1 : 0;
-            `ALU_ADD_LE: out = a <= b ? 1 : 0;
+            `ALU_COMP_GT: out = $signed(a) > $signed(b) ? 1 : 0;
+            `ALU_COMP_LT: out = $signed(a) < $signed(b) ? 1 : 0;
+            `ALU_COMP_GE: out = $signed(a) >= $signed(b) ? 1 : 0;
+            `ALU_ADD_LE: out = $signed(a) <= $signed(b) ? 1 : 0;
             default: out = 0;
         endcase
     end
