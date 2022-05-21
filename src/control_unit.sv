@@ -1,5 +1,8 @@
+`include "src/control_unit_macros.sv"
+
 module CU(
     input wire [5:0] opcode,
+    input wire [5:0] func,
     output reg RegDest,
     output reg Jump,
     output reg Branch,
@@ -12,5 +15,26 @@ module CU(
     output reg jrCtrl
 );
 
+    casez (opcode)
+        // R type opts
+        R_TYPE: 
+            case (func)
+                :
+                default:
+            endcase    
+        // J type opts
+        J_TYPE:
+            case (opcode)
+                : 
+                default: 
+            endcase
 
+        // I type opts
+        default:
+            case (opcode)
+                : 
+                default: 
+            endcase
+
+    endcase
 endmodule
