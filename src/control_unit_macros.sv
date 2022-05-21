@@ -2,7 +2,24 @@
 `define J_TYPE 6'b00001?
 
 // R Type macros
-
+`define XOR     6'b100110
+`define SLL     6'b000000
+`define SLLV    6'b000100
+`define SRL     6'b000010
+`define SUB     6'b100010
+`define SRLV    6'b000110
+`define SLT     6'b101010
+`define Syscall 6'b001100
+`define SUBU    6'b100011
+`define OR      6'b100101
+`define NOR     6'b100111
+`define ADDU    6'b100001
+`define MULT    6'b011000
+`define DIV     6'b011010
+`define AND     6'b100100
+`define ADD     6'b100000
+`define JR      6'b001000
+`define SRA     6'b000011
 
 // J Type macros
 `define J       6'b000010

@@ -24,7 +24,24 @@ module CU(
         // R type opts
         R_TYPE: 
             case (func)
-                :
+                XOR:
+                SLL:
+                SLLV:
+                SRL:
+                SUB:
+                SRLV:
+                SLT:
+                Syscall:
+                SUBU:
+                OR:
+                NOR:
+                ADDU:
+                MULT:
+                DIV:
+                AND:
+                ADD:
+                JR:
+                SRA:
                 default:
             endcase    
         // J type opts
