@@ -193,13 +193,7 @@ module CU(
                     {ALUOp} = `ALU_ADD;
                 end
 
-                `LB: begin
-
-                end
-
-                `SB: begin 
-
-                end
+                // LB and SB cases were deleted 
             endcase
         endcase
     end
