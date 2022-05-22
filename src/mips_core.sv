@@ -53,7 +53,15 @@ wire r_read2;
 //misc
 wire [31:0] write_buffer;
 wire [31:0] ext_15_0;
+wire [31:0] pc_load;
+wire [31:0] rs1;
+wire [31:0] rs2; // jump address
+wire [31:0] rs3;
+wire [27:0] rs4;
+wire [31:0] rs5;
+// registers
 
+reg [31:0] pc;
 
 //instantiation
 ALU al(.opt(a_opt),.a(r_read1),.b(a_b),.out(a_out),.zero(a_z),.negative(a_n),.carry(a_c);
@@ -70,7 +78,11 @@ regfile rr(.rs_num(inst[25:21]),.rt_num(inst[20:16]),.rd_num(r_writereg),.rd_dat
 
 sign_extend s1(inst[15:0], ext_15_0);
 
+adder a1(.res(rs3), .a(rs1), .b(rs5));
+
 //data flow
+
+
 assign write_buffer = {mem_data_out[0],mem_data_out[1],mem_data_out[2],mem_data_out[3]};
 assign r_writereg = c_regDst ? inst[15:11] : inst[20:16];
 assign r_writedata = c_MemToReg ? write_buffer : a_out;
@@ -79,5 +91,19 @@ assign a_b = c_ALUSrc ? ext_15_0 : r_read2;
 
 assign {mem_data_out[0],mem_data_out[0],mem_data_out[0],mem_data_out[0]} = r_read2;
 assign mem_addr = a_out;
+
+assign rs1 = pc + 4;
+assign rs2 = {rs1[31:28],rs4};
+
+assign rs4 = inst[27:0] <<2;
+assign rs5 = ext_15_0<<2;
+
+
+assign pc_load = ( c_Jump ? rs2 : ( (c_Branch & a_z) ? rs3 : rs1) );
+
+// behavioral
+always @(posedge clk) begin
+	pc = pc_load;
+end
 
 endmodule
