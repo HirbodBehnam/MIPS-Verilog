@@ -1,4 +1,4 @@
-`include "src/alu.sv"
+//`include "src/alu.sv"
 
 // Run with iverilog alu_TB.sv && ./a.out
 
