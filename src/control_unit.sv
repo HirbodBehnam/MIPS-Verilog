@@ -20,106 +20,108 @@ module CU(
     output reg jrCtrl
 );
 
-    casez (opcode)
+    always @(*) begin
+        casez (opcode)
         // R type opts
-        R_TYPE: 
+        `R_TYPE: begin
             case (func)
-                XOR:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_XORl;
-                end
-                SLL:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump, Branch, MemRead, MemToReg, MemWrite}=6'b000000
-                    {ALUOp} = ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT;
+                `XOR:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_XOR;
                     end
-                SLLV:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_UNSIGNED_SHIFT_LEFT;
+                `SLL:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump, Branch, MemRead, MemToReg, MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT;
                     end
-                SRL:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, jmp, Branch, MemRead, MemToReg, MemWrite}=6'b000000
-                    {ALUOp} = ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT;
+                `SLLV:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_UNSIGNED_SHIFT_LEFT;
                     end
-                SUB:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_SUB;
+                `SRL:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, jmp, Branch, MemRead, MemToReg, MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT;
                     end
-                SRLV:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_UNSIGNED_SHIFT_RIGHT;
+                `SUB:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_SUB;
                     end
-                SLT:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_COMP_LT;
+                `SRLV:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_UNSIGNED_SHIFT_RIGHT;
                     end
-                SUBU:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_SUB;
+                `SLT:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_COMP_LT;
                     end
-                OR:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_OR;
+                `SUBU:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_SUB;
                     end
-                NOR:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_NOR;
+                `OR:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_OR;
                     end
-                ADDU:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_ADD;
+                `NOR:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_NOR;
                     end
-                MULT:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_MULT;
+                `ADDU:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_ADD;
                     end
-                DIV:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_DIV;
+                `MULT:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_MULT;
                     end
-                AND:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_AND;
+                `DIV:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_DIV;
                     end
-                ADD:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_ADD;
+                `AND:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_AND;
                     end
-                SRA:begin
-                    {RegDest,PCorMemALU,RegWrite}=3'b111
-                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000
-                    {ALUOp} = ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT;
+                `ADD:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_ADD;
                     end
-                JR:begin
+                `SRA:begin
+                    {RegDest,PCorMemALU,RegWrite}=3'b111;
+                    {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
+                    {ALUOp} = `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT;
+                    end
+                `JR:begin
                     {jump, jumpReg} = 2'b11;
                     {regWrite, memRead, memWrite} = 3'b000;
                     end
-                Syscall:begin
+                `Syscall:begin
                     end
-            endcase    
+            endcase
+        end 
         // J type opts
-        J_TYPE:
+        `J_TYPE:
             case (opcode)
-                J: begin
+                `J: begin
                     Jump = 1'b1;
                     {RegWrite, MemToReg, MemWrite, MemRead} = 4'b0000;
                 end
 
-                JAL: begin
+                `JAL: begin
                     {RegWrite, Link, Jump} = 3'b111;
                     {PCorMemALU, MemRead, MemWrite, JumpReg} = 4'b0000;
                 end
@@ -128,80 +130,80 @@ module CU(
         // I type opts
         default:
             case (opcode)
-                ADDi: begin
+                `ADDi: begin
                     {ALUsrc, PCorMemALU, RegWrite} = 3'b111;
                     {RegDest, MemToReg, Link, MemRead, MemWrite, Jump} = 6'b000000;
-                    {ALUOp} = ALU_ADD;
+                    {ALUOp} = `ALU_ADD;
                 end
 
-                ADDiu: begin // similar to 'ADDi' in control signals
+                `ADDiu: begin // similar to 'ADDi' in control signals
                     {ALUsrc, PCorMemALU, RegWrite} = 3'b111;
                     {RegDest, MemToReg, Link, MemRead, MemWrite, Jump} = 6'b000000;
-                    {ALUOp} = ALU_ADD;
+                    {ALUOp} = `ALU_ADD;
                 end
 
-                ANDi: begin
+                `ANDi: begin
                     {ALUsrc, PCorMemALU, RegWrite} = 3'b111;
                     {RegDest, MemToReg, Link, MemRead, MemWrite, Jump} = 6'b000000;
-                    {ALUOp} = ALU_AND;
+                    {ALUOp} = `ALU_AND;
                 end
 
-                XORi: begin 
+                `XORi: begin 
                     {ALUsrc, PCorMemALU, RegWrite} = 3'b111;
                     {RegDest, MemToReg, Link, MemRead, MemWrite, Jump} = 6'b000000;
-                    {ALUOp} = ALU_XOR;
+                    {ALUOp} = `ALU_XOR;
                 end
 
-                ORi: begin
+                `ORi: begin
                     {ALUsrc, PCorMemALU, RegWrite} = 3'b111;
                     {RegDest, MemToReg, Link, MemRead, MemWrite, Jump} = 6'b000000;
-                    {ALUOp} = ALU_OR;
+                    {ALUOp} = `ALU_OR;
                 end
 
-                BEQ: begin
+                `BEQ: begin
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
-                    {ALUOp} = ALU_COMP_NEQ; // "out" in ALU is 0 then "zero" flag is 1
+                    {ALUOp} = `ALU_COMP_NEQ; // "out" in ALU is 0 then "zero" flag is 1
                 end 
 
-                BNE: begin 
+                `BNE: begin 
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
-                    {ALUOp} = ALU_COMP_EQ; // "out" in ALU is 0 then "zero" flag is 1
+                    {ALUOp} = `ALU_COMP_EQ; // "out" in ALU is 0 then "zero" flag is 1
                 end 
 
-                BLEZ: begin
+                `BLEZ: begin
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
-                    {ALUOp} = ALU_COMP_GT; // "out" in ALU is 0 then "zero" flag is 1
+                    {ALUOp} = `ALU_COMP_GT; // "out" in ALU is 0 then "zero" flag is 1
                 end
 
-                BGTZ: begin
+                `BGTZ: begin
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
-                    {ALUOp} = ALU_COMP_LT; // "out" in ALU is 0 then "zero" flag is 1
+                    {ALUOp} = `ALU_COMP_LT; // "out" in ALU is 0 then "zero" flag is 1
                 end
 
-                LW: begin
+                `LW: begin
                     {ALUsrc, PCorMemALU, RegWrite, MemRead, MemToReg} = 5'b11111;
                     {Jump, Link, RegDest, MemWrite} = 4'b0000;
-                    {ALUOp} = ALU_ADD;
+                    {ALUOp} = `ALU_ADD;
                 end
 
-                SW: begin
+                `SW: begin
                     {ALUsrc, MemWrite} = 2'b11;
                     {Jump, RegWrite, MemRead, RegDest} = 5'b00000;
-                    {ALUOp} = ALU_ADD;
+                    {ALUOp} = `ALU_ADD;
                 end
 
-                LB: begin
+                `LB: begin
 
                 end
 
-                SB: begin 
+                `SB: begin 
 
                 end
             endcase
-
-    endcase
+        endcase
+    end
 endmodule
