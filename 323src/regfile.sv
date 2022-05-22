@@ -43,7 +43,7 @@ module regfile(
         integer fd = 0;
         integer i = 0;
 		if (rst_b && (halted)) begin
-			fd = $fopen("output/regdump.reg");
+			fd = $fopen("output/regdump.reg", "w");
 
 			$display("=== Simulation Cycle %0d ===", $time/2);
 			$display("*** RegisterFile dump ***");

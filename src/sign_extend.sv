@@ -1,6 +1,6 @@
-module(input [15:0] short, output [31:0] long);
+module sign_extend(input [15:0] in, output [31:0] out);
 
-assign long[15:0] = short;
-assign long[31:16] = (short[15] ? -16'b1 : 16'b0);
+assign out[15:0] = in;
+assign out[31:16] = (in[15] ? -16'b1 : 16'b0);
 
 endmodule

@@ -1,6 +1,8 @@
+`include "src/adder.sv"
 `include "src/sign_extend.sv"
 `include "src/alu.sv"
 `include "src/control_unit.sv"
+`include "323src/regfile.sv"
 
 module mips_core(
 	inst_addr,
@@ -21,7 +23,7 @@ output  [31:0] inst_addr;
 output  [31:0] mem_addr;
 output  [7:0]  mem_data_in[0:3];
 output         mem_write_en;
-output reg     halted;
+output         halted;
 
 //internal wires
 
@@ -43,8 +45,9 @@ wire [4:0] c_ALUOp;
 wire c_MemWrite;
 wire c_ALUsrc;
 wire c_regWrite;
-wire c_jalCtrl;
-wire c_jrCtrl;
+wire c_Link;
+wire c_JumpReg;
+wire c_PcOrMem;
 
 //regfile wires
 wire r_writereg;
@@ -69,8 +72,8 @@ reg [31:0] pc;
 ALU al(.opt(c_ALUOp),.a(r_read1),.b(a_b),.out(a_out),.zero(a_z),.negative(a_n),.carry(a_c));
 
 CU ct(.opcode(inst[31:26]), .func(inst[5:0]), .RegDest(c_RegDst), .Jump(c_Jump), .Branch(c_Branch), 
-	.MemToReg(c_MemToReg), .ALUOp(c_ALUOp), .MemWrite(mem_write_en), 
-	.ALUsrc(c_ALUsrc), .RegWrite(c_regWrite), c_jalCtrl, c_jrCtrl);
+	.MemToReg(c_MemToReg), .ALUOp(c_ALUOp), .MemWrite(mem_write_en), .JumpReg(c_JumpReg),
+	.ALUsrc(c_ALUsrc), .RegWrite(c_regWrite), .Link(c_Link));
 
 regfile rr(.rs_num(inst[25:21]),.rt_num(inst[20:16]),.rd_num(r_writereg),.rd_data(r_writedata),
 	.rd_we(c_regWrite), .clk(clk), .rst_b(rst_b), .halted(halted), .rs_data(r_read1), 
@@ -100,6 +103,9 @@ assign rs5 = ext_15_0<<2;
 
 
 assign pc_load = ( c_Jump ? rs2 : ( (c_Branch & a_z) ? rs3 : rs1) );
+
+
+assign halted = inst[31:26] == 6'b001100;
 
 // behavioral
 always @(posedge clk) begin
