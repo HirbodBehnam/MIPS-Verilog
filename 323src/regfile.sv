@@ -12,13 +12,13 @@ module regfile(
 );
     parameter XLEN=32, size=32;
 
-    output [XLEN-1:0] rs_data;
-    output [XLEN-1:0] rt_data;
-    input       [4:0] rs_num;
-    input       [4:0] rt_num;
-    input       [4:0] rd_num;
-    input  [XLEN-1:0] rd_data;
-    input             rd_we;
+    output [XLEN-1:0] rs_data; // reg read 1 data
+    output [XLEN-1:0] rt_data; // reg read 2 data
+    input       [4:0] rs_num;  // reg read 1 index
+    input       [4:0] rt_num;  // reg read 2 index
+    input       [4:0] rd_num;  // reg write index
+    input  [XLEN-1:0] rd_data; // reg write data
+    input             rd_we;   // reg write signal
     input             clk;
     input             rst_b;
     input             halted;
