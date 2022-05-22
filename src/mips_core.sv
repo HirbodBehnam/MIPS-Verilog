@@ -1,3 +1,6 @@
+`include "src/sign_extend.sv"
+`include "src/alu.sv"
+`include "src/control_unit.sv"
 
 module mips_core(
 	inst_addr,
@@ -23,7 +26,6 @@ output reg     halted;
 //internal wires
 
 //alu wires
-wire [4:0] a_opt;
 wire [31:0] a_a;
 wire [31:0] a_b;
 wire [31:0] a_out;
@@ -37,7 +39,7 @@ wire c_Jump;
 wire c_Branch;
 wire c_MemRead;
 wire c_MemToReg;
-wire [5:0] c_ALUOp;
+wire [4:0] c_ALUOp;
 wire c_MemWrite;
 wire c_ALUsrc;
 wire c_regWrite;
@@ -64,13 +66,11 @@ wire [31:0] rs5;
 reg [31:0] pc;
 
 //instantiation
-ALU al(.opt(a_opt),.a(r_read1),.b(a_b),.out(a_out),.zero(a_z),.negative(a_n),.carry(a_c);
+ALU al(.opt(c_ALUOp),.a(r_read1),.b(a_b),.out(a_out),.zero(a_z),.negative(a_n),.carry(a_c));
 
-Control ct(.opcode(inst[31:26]), c_RegDst, c_Jump, c_Branch, 
-	c_MemToReg, c_ALUOp, mem_write_en, 
-	c_ALUsrc, c_regWrite,c_jalCtrl, c_jrCtrl);
-
-ALUControl alc(.opcode(c_ALUop), .func(inst[5:0]),.inst(a_opt));
+CU ct(.opcode(inst[31:26]), .func(inst[5:0]), .RegDest(c_RegDst), .Jump(c_Jump), .Branch(c_Branch), 
+	.MemToReg(c_MemToReg), .ALUOp(c_ALUOp), .MemWrite(mem_write_en), 
+	.ALUsrc(c_ALUsrc), .RegWrite(c_regWrite), c_jalCtrl, c_jrCtrl);
 
 regfile rr(.rs_num(inst[25:21]),.rt_num(inst[20:16]),.rd_num(r_writereg),.rd_data(r_writedata),
 	.rd_we(c_regWrite), .clk(clk), .rst_b(rst_b), .halted(halted), .rs_data(r_read1), 
