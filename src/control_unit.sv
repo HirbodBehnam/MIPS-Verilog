@@ -11,13 +11,11 @@ module CU(
     output reg Branch,
     output reg MemToReg,
     output reg PCorMemALU,
-    output reg [5:0] ALUOp,
+    output reg [4:0] ALUOp,
     output reg MemWrite,
     output reg MemRead,
     output reg ALUsrc,
-    output reg RegWrite,
-    output reg jalCtrl,
-    output reg jrCtrl
+    output reg RegWrite
 );
 
     always @(*) begin
@@ -42,7 +40,7 @@ module CU(
                     end
                 `SRL:begin
                     {RegDest,PCorMemALU,RegWrite}=3'b111;
-                    {ALUsrc, jmp, Branch, MemRead, MemToReg, MemWrite}=6'b000000;
+                    {ALUsrc, Jump, Branch, MemRead, MemToReg, MemWrite}=6'b000000;
                     {ALUOp} = `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT;
                     end
                 `SUB:begin
@@ -106,8 +104,8 @@ module CU(
                     {ALUOp} = `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT;
                     end
                 `JR:begin
-                    {jump, jumpReg} = 2'b11;
-                    {regWrite, memRead, memWrite} = 3'b000;
+                    {Jump, JumpReg} = 2'b11;
+                    {RegWrite, MemRead, MemWrite} = 3'b000;
                     end
                 `Syscall:begin
                     end
