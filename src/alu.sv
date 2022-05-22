@@ -26,7 +26,7 @@ module ALU(
     wire [4:0] shift_amount = b[10:6];
 
     // The operation itself
-    always @(*) begin
+    always_latch @(*) begin
         carry = 0; // clear carry at first
         case (opt)
             // Simple math arithmetic

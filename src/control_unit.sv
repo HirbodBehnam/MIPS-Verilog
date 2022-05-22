@@ -106,7 +106,7 @@ module CU(
                     {Jump, JumpReg} = 2'b11;
                     {RegWrite, MemRead, MemWrite} = 3'b000;
                     end
-                `Syscall:begin
+                default:begin
                     end
             endcase
         end 
@@ -122,6 +122,8 @@ module CU(
                     {RegWrite, Jump} = 2'b11;
                     {Link, MemRead, MemWrite, JumpReg} = 4'b0000;
                 end
+		default:begin
+		end
             endcase
 
         // I type opts
@@ -189,9 +191,11 @@ module CU(
 
                 `SW: begin
                     {ALUsrc, MemWrite} = 2'b11;
-                    {Jump, RegWrite, MemRead, RegDest} = 5'b00000;
+                    {Jump, RegWrite, MemRead, RegDest} = 4'b0000;
                     {ALUOp} = `ALU_ADD;
                 end
+		default: begin
+		end
 
                 // LB and SB cases were deleted 
             endcase

@@ -91,7 +91,8 @@ CU ct(.opcode(inst[31:26]),
 	.ALUsrc(c_ALUsrc),
 	.RegWrite(c_regWrite),
 	.Link(c_Link),
-	.MemRead(c_MemRead)
+	.MemRead(c_MemRead),
+	.Halted(halted)
 );
 
 regfile rr(.rs_num(inst[25:21]),
