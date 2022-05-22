@@ -1,9 +1,9 @@
-`include "src/adder.sv"
-`include "src/sign_extend.sv"
-`include "src/alu.sv"
-`include "src/control_unit.sv"
-`include "323src/regfile.sv"
-
+//`include "src/adder.sv"
+//`include "src/sign_extend.sv"
+//`include "src/alu.sv"
+//`include "src/control_unit.sv"
+//`include "323src/regfile.sv"
+//
 
 module mips_core(
 	inst_addr,
@@ -79,7 +79,7 @@ ALU al(.opt(c_ALUOp),
 	.carry(a_c)
 );
 
-CU ct(.oinst_addrode(inst[31:26]),
+CU ct(.opcode(inst[31:26]),
 	.func(inst[5:0]),
 	.RegDest(c_RegDst),
 	.Jump(c_Jump),
@@ -117,14 +117,14 @@ adder a1(.res(rs3),
 
 
 assign write_buffer = {mem_data_out[0],mem_data_out[1],mem_data_out[2],mem_data_out[3]};
-assign r_writereg1 = c_regDst ? inst[15:11] : inst[20:16];
+assign r_writereg1 = c_RegDst? inst[15:11] : inst[20:16];
 assign r_writereg2 = c_Link ? inst[25:21] : 5'd31;
 
 assign r_writedata = c_Link ? (c_MemToReg ? write_buffer : a_out) : rs1;
 
-assign a_b = c_ALUSrc ? ext_15_0 : r_read2;
+assign a_b = c_ALUsrc ? ext_15_0 : r_read2;
 
-assign {mem_data_out[0],mem_data_out[0],mem_data_out[0],mem_data_out[0]} = r_read2;
+assign {mem_data_in[0],mem_data_in[0],mem_data_in[0],mem_data_in[0]} = r_read2;
 assign mem_addr = a_out;
 
 assign rs1 = inst_addr + 4;
