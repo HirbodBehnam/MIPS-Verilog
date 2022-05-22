@@ -14,7 +14,8 @@ module CU(
     output reg MemWrite, // ok
     output reg ALUsrc, // ok 
     output reg MemRead, // ok 
-    output reg RegWrite // ok
+    output reg RegWrite, // ok
+    output reg Halted
 );
 
     always @(*) begin
@@ -107,6 +108,7 @@ module CU(
                     {RegWrite, MemRead, MemWrite} = 3'b000;
                     end
                 default:begin
+                    Halted = 1'b1;
                     end
             endcase
         end 
