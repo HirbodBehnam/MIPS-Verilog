@@ -4,6 +4,7 @@
 module CU(
     input wire [5:0] opcode,
     input wire [5:0] func,
+    input wire rst_b,
     output reg RegDest, // ok
     output reg Jump, // ok
     output reg JumpReg, // ok
@@ -19,6 +20,9 @@ module CU(
 );
 
     always @(*) begin
+	if(~rst_b)
+		Halted = 0;
+	else
         casez (opcode)
         // R type opts
         `R_TYPE: begin
