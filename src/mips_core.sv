@@ -69,19 +69,47 @@ wire [31:0] rs5;
 reg [31:0] pc;
 
 //instantiation
-ALU al(.opt(c_ALUOp),.a(r_read1),.b(a_b),.out(a_out),.zero(a_z),.negative(a_n),.carry(a_c));
+ALU al(.opt(c_ALUOp),
+	.a(r_read1),
+	.b(a_b),
+	.out(a_out),
+	.zero(a_z),
+	.negative(a_n),
+	.carry(a_c)
+);
 
-CU ct(.opcode(inst[31:26]), .func(inst[5:0]), .RegDest(c_RegDst), .Jump(c_Jump), .Branch(c_Branch), 
-	.MemToReg(c_MemToReg), .ALUOp(c_ALUOp), .MemWrite(mem_write_en), .JumpReg(c_JumpReg),
-	.ALUsrc(c_ALUsrc), .RegWrite(c_regWrite), .Link(c_Link));
+CU ct(.opcode(inst[31:26]),
+	.func(inst[5:0]),
+	.RegDest(c_RegDst),
+	.Jump(c_Jump),
+	.Branch(c_Branch),
+	.MemToReg(c_MemToReg),
+	.ALUOp(c_ALUOp),
+	.MemWrite(mem_write_en),
+	.JumpReg(c_JumpReg),
+	.ALUsrc(c_ALUsrc),
+	.RegWrite(c_regWrite),
+	.Link(c_Link)
+);
 
-regfile rr(.rs_num(inst[25:21]),.rt_num(inst[20:16]),.rd_num(r_writereg),.rd_data(r_writedata),
-	.rd_we(c_regWrite), .clk(clk), .rst_b(rst_b), .halted(halted), .rs_data(r_read1), 
+regfile rr(.rs_num(inst[25:21]),
+	.rt_num(inst[20:16]),
+	.rd_num(r_writereg),
+	.rd_data(r_writedata),
+	.rd_we(c_regWrite),
+	.clk(clk),
+	.rst_b(rst_b),
+	.halted(halted),
+	.rs_data(r_read1),
+
 	.rt_data(r_read2));
 
-sign_extend s1(inst[15:0], ext_15_0);
+sign_extend s1(inst[15:0],
+	ext_15_0);
 
-adder a1(.res(rs3), .a(rs1), .b(rs5));
+adder a1(.res(rs3),
+	.a(rs1),
+	.b(rs5));
 
 //data flow
 
