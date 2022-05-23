@@ -1,9 +1,10 @@
-//`include "src/alu_opts.sv"
+`include "src/alu_opts.sv"
 
 module ALU(
     input wire [4:0] opt,
     input wire [31:0] a,
     input wire [31:0] b,
+    input wire [4:0] shamt,
     output reg [31:0] out,
     // Is set when out is zero
     output wire zero,
@@ -22,11 +23,8 @@ module ALU(
     
     // Carry from https://electronics.stackexchange.com/a/509341
 
-    // Caclualte shift amount as well in case we need it
-    wire [4:0] shift_amount = b[10:6];
-
     // The operation itself
-    always_latch @(*) begin
+    always_latch @(a, b, opt, shamt) begin
         carry = 0; // clear carry at first
         case (opt)
             // Simple math arithmetic
@@ -49,10 +47,10 @@ module ALU(
             // Shift operations
             `ALU_UNSIGNED_SHIFT_LEFT: out = a << b;
             `ALU_UNSIGNED_SHIFT_RIGHT: out = a >> b;
-            `ALU_UNSIGNED_SHIFT_LEFT_SH_AMOUNT: out = a << shift_amount;
-            `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT: out = a >> shift_amount;
-            `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT: out = $signed(a) <<< shift_amount;
-            `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT: out = $signed(a) >>> shift_amount;
+            `ALU_UNSIGNED_SHIFT_LEFT_SH_AMOUNT: out = b << shamt;
+            `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT: out = b >> shamt;
+            `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT: out = $signed(a) <<< shamt;
+            `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT: out = $signed(a) >>> shamt;
             // Comparition
             `ALU_COMP_GT: out = $signed(a) > $signed(b) ? 1 : 0;
             `ALU_COMP_LT: out = $signed(a) < $signed(b) ? 1 : 0;

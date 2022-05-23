@@ -35,7 +35,7 @@ module CU(
                 `SLL:begin
                     {RegDest,Link,RegWrite}=3'b111;
                     {ALUsrc, Jump, Branch, MemRead, MemToReg, MemWrite}=6'b000000;
-                    {ALUOp} = `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT;
+                    {ALUOp} = `ALU_UNSIGNED_SHIFT_LEFT_SH_AMOUNT;
                     end
                 `SLLV:begin
                     {RegDest,Link,RegWrite}=3'b111;
@@ -112,6 +112,7 @@ module CU(
                     {RegWrite, MemRead, MemWrite} = 3'b000;
                     end
                 default:begin
+                    $display("UNKNOWN FUNC: %b", func);
                     Halted = 1'b1;
                     end
             endcase

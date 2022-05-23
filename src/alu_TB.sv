@@ -4,10 +4,10 @@
 
 module ALU_Testbench;
     reg [31:0] a, b, out_expected;
-    reg [4:0] opt;
+    reg [4:0] opt, shamt;
     wire zero, carry, negative;
     wire [31:0] out;
-    ALU alu(.opt(opt), .a(a), .b(b), .out(out), .zero(zero), .carry(carry), .negative(negative));
+    ALU alu(.opt(opt), .a(a), .b(b), .shamt(shamt), .out(out), .zero(zero), .carry(carry), .negative(negative));
 
     initial begin
         a = 1234;

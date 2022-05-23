@@ -29,7 +29,6 @@ output         halted;
 //internal wires
 
 //alu wires
-wire [31:0] a_a;
 wire [31:0] a_b;
 wire [31:0] a_out;
 wire a_z;
@@ -73,6 +72,7 @@ wire [31:0] rs5;
 ALU al(.opt(c_ALUOp),
 	.a(r_read1),
 	.b(a_b),
+	.shamt(inst[10:6]),
 	.out(a_out),
 	.zero(a_z),
 	.negative(a_n),
@@ -149,7 +149,7 @@ always @(posedge clk or negedge rst_b) begin
 		//$display("RESET");
 	end else begin
 		inst_addr <= inst_addr_load;
-		//$display("got %b on %d", inst, inst_addr_load);
+		//$display("got %b on %d", inst, inst_addr_load / 4);
 	end
 end
 
