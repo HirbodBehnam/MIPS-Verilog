@@ -108,6 +108,10 @@ regfile rr(.rs_num(inst[25:21]),
 	.rt_data(r_read2)
 );
 
+//always @(*)
+//	$display("%d <- %d o %d | %d", r_writereg1, inst[25:21], inst[20:16], r_writedata);
+
+
 sign_extend s1(inst[15:0], ext_15_0);
 
 adder a1(.res(rs3),
@@ -137,8 +141,6 @@ assign rs5 = ext_15_0<<2;
 
 assign inst_addr_load = c_JumpReg ? r_read1 : ( c_Jump ? rs2 : ( (c_Branch & a_z) ? rs3 : rs1) );
 
-
-assign halted = inst[31:26] == 6'b001100;
 
 // behavioral
 always @(posedge clk or negedge rst_b) begin
