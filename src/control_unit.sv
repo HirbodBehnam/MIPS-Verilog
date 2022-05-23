@@ -1,5 +1,5 @@
-//`include "src/control_unit_macros.sv"
-//`include "src/alu_opts.sv"
+`include "src/control_unit_macros.sv"
+`include "src/alu_opts.sv"
 
 module CU(
     input wire [5:0] opcode,
@@ -101,6 +101,7 @@ module CU(
                     {RegDest,Link,RegWrite}=3'b111;
                     {ALUsrc, Jump,Branch,MemRead,MemToReg,MemWrite}=6'b000000;
                     {ALUOp} = `ALU_ADD;
+                    $display("GOT ADD");
                     end
                 `SRA:begin
                     {RegDest,Link,RegWrite}=3'b111;
