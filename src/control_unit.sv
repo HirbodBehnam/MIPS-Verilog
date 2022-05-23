@@ -21,7 +21,7 @@ module CU(
 );
 
     always @(*) begin
-    {ALUsrc, Jump, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, Link, SignExtend} = 10'b0000000000;
+    {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, Link, SignExtend} = 0;
 	if(~rst_b)
 	begin
 		Halted = 0;
