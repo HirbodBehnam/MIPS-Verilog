@@ -142,8 +142,14 @@ assign inst_addr_load = c_JumpReg ? r_read1 : ( c_Jump ? rs2 : ( (c_Branch & a_z
 assign halted = inst[31:26] == 6'b001100;
 
 // behavioral
-always @(posedge clk) begin
-	inst_addr = inst_addr_load;
+always @(posedge clk or negedge rst_b) begin
+	if (rst_b == 0) begin
+		inst_addr <= -4;
+		//$display("RESET");
+	end else begin
+		inst_addr <= inst_addr_load;
+		//$display("got %b on %d", inst, inst_addr_load);
+	end
 end
 
 endmodule
