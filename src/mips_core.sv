@@ -129,7 +129,7 @@ assign r_writedata = c_Link ? (c_MemToReg ? write_buffer : a_out) : rs1;
 
 assign a_b = c_ALUsrc ? ext_15_0 : r_read2;
 
-assign {mem_data_in[0],mem_data_in[0],mem_data_in[0],mem_data_in[0]} = r_read2;
+assign {mem_data_in[0],mem_data_in[1],mem_data_in[2],mem_data_in[3]} = r_read2;
 assign mem_addr = a_out;
 
 assign rs1 = inst_addr + 4;
