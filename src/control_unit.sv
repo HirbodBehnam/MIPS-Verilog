@@ -201,7 +201,20 @@ module CU(
                     {Jump, RegWrite, MemRead, RegDest} = 4'b0000;
                     {ALUOp} = `ALU_ADD;
                 end
+
+                `SLTi: begin
+                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
+                    {ALUOp} = `ALU_COMP_LE;
+                end
+
+                `LUI: begin
+                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
+                    {ALUOp} = `ALU_LUI;
+                end
 		default: begin
+            $display("UNKOWN OPCODE: %b", opcode);
 		end
 
                 // LB and SB cases were deleted 

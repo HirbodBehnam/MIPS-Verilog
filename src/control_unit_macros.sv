@@ -41,6 +41,7 @@
 `define LB      6'b100000
 `define SB      6'b101000
 `define SLTi    6'b001010 
+`define LUI     6'b001111
 
 
 
