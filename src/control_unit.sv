@@ -22,7 +22,10 @@ module CU(
 
     always @(*) begin
 	if(~rst_b)
+	begin
 		Halted = 0;
+		SignExtend = 1;
+	end
 	else
         casez (opcode)
         // R type opts
@@ -148,7 +151,7 @@ module CU(
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_ADD;
-		    SignExtend = 1;
+		    SignExtend = 0;
                 end
 
                 `ANDi: begin	// DO NOT EXTEND SIGN

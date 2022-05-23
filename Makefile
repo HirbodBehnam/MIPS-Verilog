@@ -20,11 +20,10 @@ MEM = $(ASM:%.s=%.mem)
 
 assemble: $(MEM)
 
-INPUT ?= test/default/addiu
+INPUT =  test/default/addiu
 
 obj_dir/Vmips_machine: src/*.sv 323src/*.sv 323src/sim_main.cpp
-	docker run -ti -v ${PWD}:/work												\
-			verilator/verilator:latest --exe --build --cc --top mips_machine	\
+			verilator --exe --build --cc --top mips_machine	\
 					-Wno-BLKLOOPINIT											\
 					`find src 323src -iname '*.v' -o -iname '*.sv'`				\
 					323src/sim_main.cpp
@@ -32,7 +31,7 @@ obj_dir/Vmips_machine: src/*.sv 323src/*.sv 323src/sim_main.cpp
 compile: obj_dir/Vmips_machine
 
 sim: compile assemble
-	cp ${INPUT}.mem output/instructions.mem
+	cp ${INPUT}.mem output/instructions.mem 
 	./obj_dir/Vmips_machine
 
 verify: sim
