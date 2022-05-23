@@ -48,6 +48,7 @@ wire c_regWrite;
 wire c_Link;
 wire c_JumpReg;
 wire c_PcOrMem;
+wire c_SignExtend;
 
 //regfile wires
 wire [4:0] r_writereg1;
@@ -93,7 +94,8 @@ CU ct(.opcode(inst[31:26]),
 	.Link(c_Link),
 	.MemRead(c_MemRead),
 	.Halted(halted),
-	.rst_b(rst_b)
+	.rst_b(rst_b),
+	.SignExtend(c_SignExtend)
 );
 
 regfile rr(.rs_num(inst[25:21]),
@@ -112,7 +114,7 @@ regfile rr(.rs_num(inst[25:21]),
 //	$display("%d <- %d o %d | %d", r_writereg1, inst[25:21], inst[20:16], r_writedata);
 
 
-sign_extend s1(inst[15:0], ext_15_0);
+sign_extend s1(inst[15:0], ext_15_0, c_SignExtend);
 
 adder a1(.res(rs3),
 	.a(rs1),

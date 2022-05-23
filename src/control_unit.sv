@@ -16,7 +16,8 @@ module CU(
     output reg ALUsrc, // ok 
     output reg MemRead, // ok 
     output reg RegWrite, // ok
-    output reg Halted
+    output reg Halted,
+    output reg SignExtend
 );
 
     always @(*) begin
@@ -140,78 +141,91 @@ module CU(
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_ADD;
+		    SignExtend = 1;
                 end
 
                 `ADDiu: begin // similar to 'ADDi' in control signals
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_ADD;
+		    SignExtend = 1;
                 end
 
-                `ANDi: begin
+                `ANDi: begin	// DO NOT EXTEND SIGN
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_AND;
+		    SignExtend = 0;
                 end
 
-                `XORi: begin 
+                `XORi: begin 	// DO NOT EXTEND SIGN
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_XOR;
+		    SignExtend = 0;
                 end
 
-                `ORi: begin
+                `ORi: begin	// DO NOT EXTEND SIGN
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_OR;
+		    SignExtend = 0;
                 end
 
                 `BEQ: begin
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_COMP_NEQ; // "out" in ALU is 0 then "zero" flag is 1
+		    SignExtend = 1;
                 end 
 
                 `BNE: begin 
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_COMP_EQ; // "out" in ALU is 0 then "zero" flag is 1
+		    SignExtend = 1;
                 end 
 
                 `BLEZ: begin
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_COMP_GT; // "out" in ALU is 0 then "zero" flag is 1
+		    SignExtend = 1;
                 end
 
                 `BGTZ: begin
                     {Branch} = 1'b1;
                     {ALUsrc, RegWrite, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_COMP_LT; // "out" in ALU is 0 then "zero" flag is 1
+		    SignExtend = 1;
                 end
 
                 `LW: begin
                     {ALUsrc, Link, RegWrite, MemRead, MemToReg} = 5'b11111;
                     {Jump, RegDest, MemWrite} = 3'b000;
                     {ALUOp} = `ALU_ADD;
+		    SignExtend = 1;
                 end
 
                 `SW: begin
                     {ALUsrc, MemWrite} = 2'b11;
                     {Jump, RegWrite, MemRead, RegDest} = 4'b0000;
                     {ALUOp} = `ALU_ADD;
+		    SignExtend = 1;
                 end
 
                 `SLTi: begin
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_COMP_LE;
+		    SignExtend = 1;
                 end
 
                 `LUI: begin
                     {ALUsrc, Link, RegWrite} = 3'b111;
                     {RegDest, MemToReg, MemRead, MemWrite, Jump} = 5'b00000;
                     {ALUOp} = `ALU_LUI;
+		    SignExtend = 1;
                 end
 		default: begin
             $display("UNKOWN OPCODE: %b", opcode);
