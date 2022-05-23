@@ -97,7 +97,7 @@ CU ct(.opcode(inst[31:26]),
 );
 
 regfile rr(.rs_num(inst[25:21]),
-	.rt_num(r_writereg2),
+	.rt_num(inst[20:16]),
 	.rd_num(r_writereg1),
 	.rd_data(r_writedata),
 	.rd_we(c_regWrite),
@@ -119,8 +119,7 @@ adder a1(.res(rs3),
 
 
 assign write_buffer = {mem_data_out[0],mem_data_out[1],mem_data_out[2],mem_data_out[3]};
-assign r_writereg1 = c_RegDst? inst[15:11] : inst[20:16];
-assign r_writereg2 = c_Link ? inst[25:21] : 5'd31;
+assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31;
 
 assign r_writedata = c_Link ? (c_MemToReg ? write_buffer : a_out) : rs1;
 
