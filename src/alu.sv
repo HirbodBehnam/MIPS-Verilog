@@ -1,4 +1,4 @@
-`include "src/alu_opts.sv"
+//`include "src/alu_opts.sv"
 
 module ALU(
     input wire [4:0] opt,
@@ -49,8 +49,8 @@ module ALU(
             `ALU_UNSIGNED_SHIFT_RIGHT: out = a >> b;
             `ALU_UNSIGNED_SHIFT_LEFT_SH_AMOUNT: out = b << shamt;
             `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT: out = b >> shamt;
-            `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT: out = $signed(a) <<< shamt;
-            `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT: out = $signed(a) >>> shamt;
+            `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT: out = $signed(b) <<< shamt;
+            `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT: out = $signed(b) >>> shamt;
             // Comparition
             `ALU_COMP_GT: out = $signed(a) > $signed(b) ? 1 : 0;
             `ALU_COMP_LT: out = $signed(a) < $signed(b) ? 1 : 0;
