@@ -1,105 +1,23 @@
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/arithtest.mem output/instructions.mem 
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/crow/membyte.mem output/instructions.mem
 ./obj_dir/Vmips_machine
 UNKNOWN FUNC: 001100
 - 323src/mips_machine.sv:57: Verilog $finish
-=== Simulation Cycle 17 ===
+=== Simulation Cycle 15 ===
 *** RegisterFile dump ***
 r 0 = 0x00000000
 r 1 = 0x00000000
 r 2 = 0x0000000a
-r 3 = 0x00000800
-r 4 = 0x00000c00
-r 5 = 0x000004d2
-r 6 = 0x04d20000
-r 7 = 0x04d2270f
-r 8 = 0x04d2230f
-r 9 = 0x00000400
-r10 = 0x000004ff
-r11 = 0x00269000
-r12 = 0x004d2000
-r13 = 0x00000000
-r14 = 0x00000000
-r15 = 0xfffffb01
-r16 = 0x00000000
-r17 = 0x00640000
-r18 = 0x00000000
-r19 = 0x00000000
-r20 = 0x00000000
-r21 = 0x00000000
-r22 = 0x00000000
-r23 = 0x00000000
-r24 = 0x00000000
-r25 = 0x00000000
-r26 = 0x00000000
-r27 = 0x00000000
-r28 = 0x00000000
-r29 = 0x00000000
-r30 = 0x00000000
-r31 = 0x00000000
-diff -u test/default/arithtest.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/memtest0.mem output/instructions.mem 
-./obj_dir/Vmips_machine
-UNKNOWN FUNC: 001100
-- 323src/mips_machine.sv:57: Verilog $finish
-=== Simulation Cycle 32 ===
-*** RegisterFile dump ***
-r 0 = 0x00000000
-r 1 = 0x00000000
-r 2 = 0x0000000a
-r 3 = 0x10000004
+r 3 = 0x10000000
 r 4 = 0x00000000
-r 5 = 0x000000ff
-r 6 = 0x000001fe
-r 7 = 0x000003fc
-r 8 = 0x0000792c
-r 9 = 0x000000ff
-r10 = 0x000001fe
-r11 = 0x000003fc
-r12 = 0x0000792c
-r13 = 0x000000ff
-r14 = 0x000000ff
-r15 = 0x000001fe
-r16 = 0x000003fc
-r17 = 0x0000881d
-r18 = 0x00000000
-r19 = 0x00000000
-r20 = 0x00000000
-r21 = 0x00000000
-r22 = 0x00000000
-r23 = 0x00000000
-r24 = 0x00000000
-r25 = 0x00000000
-r26 = 0x00000000
-r27 = 0x00000000
-r28 = 0x00000000
-r29 = 0x00000000
-r30 = 0x00000000
-r31 = 0x00000000
-diff -u test/default/memtest0.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/shifttest.mem output/instructions.mem 
-./obj_dir/Vmips_machine
-UNKNOWN FUNC: 001100
-- 323src/mips_machine.sv:57: Verilog $finish
-=== Simulation Cycle 9 ===
-*** RegisterFile dump ***
-r 0 = 0x00000000
-r 1 = 0x00000000
-r 2 = 0x0000000a
-r 3 = 0x0000ffff
-r 4 = 0xffff0000
-r 5 = 0x003fffc0
-r 6 = 0xffffffc0
-r 7 = 0x0000003f
-r 8 = 0x00ffff00
-r 9 = 0x0000003f
-r10 = 0x00000000
-r11 = 0x00000000
-r12 = 0x00000000
+r 5 = 0x0000001f
+r 6 = 0x00000002
+r 7 = 0x0000022f
+r 8 = 0x0000002f
+r 9 = 0x0000001f
+r10 = 0x00000002
+r11 = 0x0000002f
+r12 = 0x0000002f
 r13 = 0x00000000
 r14 = 0x00000000
 r15 = 0x00000000
@@ -119,133 +37,10 @@ r28 = 0x00000000
 r29 = 0x00000000
 r30 = 0x00000000
 r31 = 0x00000000
-diff -u test/default/shifttest.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/brtest0.mem output/instructions.mem 
-./obj_dir/Vmips_machine
-UNKNOWN FUNC: 001100
-- 323src/mips_machine.sv:57: Verilog $finish
-=== Simulation Cycle 10 ===
-*** RegisterFile dump ***
-r 0 = 0x00000000
-r 1 = 0x00000000
-r 2 = 0x0000000a
-r 3 = 0x00000000
-r 4 = 0x00000000
-r 5 = 0x00000001
-r 6 = 0x00001337
-r 7 = 0x0000d00d
-r 8 = 0x00000000
-r 9 = 0x00000000
-r10 = 0x00000000
-r11 = 0x00000000
-r12 = 0x00000000
-r13 = 0x00000000
-r14 = 0x00000000
-r15 = 0x00000000
-r16 = 0x00000000
-r17 = 0x00000000
-r18 = 0x00000000
-r19 = 0x00000000
-r20 = 0x00000000
-r21 = 0x00000000
-r22 = 0x00000000
-r23 = 0x00000000
-r24 = 0x00000000
-r25 = 0x00000000
-r26 = 0x00000000
-r27 = 0x00000000
-r28 = 0x00000000
-r29 = 0x00000000
-r30 = 0x00000000
-r31 = 0x00000000
-diff -u test/default/brtest0.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/addiu.mem output/instructions.mem 
-./obj_dir/Vmips_machine
-UNKNOWN FUNC: 001100
-- 323src/mips_machine.sv:57: Verilog $finish
-=== Simulation Cycle 7 ===
-*** RegisterFile dump ***
-r 0 = 0x00000000
-r 1 = 0x00000000
-r 2 = 0x0000000a
-r 3 = 0x00000000
-r 4 = 0x00000000
-r 5 = 0x00000000
-r 6 = 0x00000000
-r 7 = 0x00000000
-r 8 = 0x00000005
-r 9 = 0x00000131
-r10 = 0x000001f4
-r11 = 0x00000243
-r12 = 0x00000000
-r13 = 0x00000000
-r14 = 0x00000000
-r15 = 0x00000000
-r16 = 0x00000000
-r17 = 0x00000000
-r18 = 0x00000000
-r19 = 0x00000000
-r20 = 0x00000000
-r21 = 0x00000000
-r22 = 0x00000000
-r23 = 0x00000000
-r24 = 0x00000000
-r25 = 0x00000000
-r26 = 0x00000000
-r27 = 0x00000000
-r28 = 0x00000000
-r29 = 0x00000000
-r30 = 0x00000000
-r31 = 0x00000000
-diff -u test/default/addiu.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/brtest2.mem output/instructions.mem 
-./obj_dir/Vmips_machine
-UNKNOWN FUNC: 001100
-- 323src/mips_machine.sv:57: Verilog $finish
-=== Simulation Cycle 6 ===
-*** RegisterFile dump ***
-r 0 = 0x00000000
-r 1 = 0x00000000
-r 2 = 0x0000000a
-r 3 = 0x00000000
-r 4 = 0x00000000
-r 5 = 0x00000000
-r 6 = 0x00000000
-r 7 = 0x0000d00d
-r 8 = 0x00000000
-r 9 = 0x00000000
-r10 = 0x00000000
-r11 = 0x00000000
-r12 = 0x00000000
-r13 = 0x00000000
-r14 = 0x00000000
-r15 = 0x00000000
-r16 = 0x00000000
-r17 = 0x00000000
-r18 = 0x00000000
-r19 = 0x00000000
-r20 = 0x00000000
-r21 = 0x00000000
-r22 = 0x00000000
-r23 = 0x00000000
-r24 = 0x00000000
-r25 = 0x00000000
-r26 = 0x00000000
-r27 = 0x00000000
-r28 = 0x00000000
-r29 = 0x00000000
-r30 = 0x00000000
-r31 = 0x00000000
-diff -u test/default/brtest2.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-make[1]: Entering directory '/home/hirad/arch-proj/project-kiavash'
-cp test/default/addtest.mem output/instructions.mem 
+diff -u test/crow/membyte.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/addtest.mem output/instructions.mem
 ./obj_dir/Vmips_machine
 UNKNOWN FUNC: 001100
 - 323src/mips_machine.sv:57: Verilog $finish
@@ -284,5 +79,292 @@ r29 = 0x00000000
 r30 = 0x00000000
 r31 = 0x00000000
 diff -u test/default/addtest.reg output/regdump.reg 1>&2
-make[1]: Leaving directory '/home/hirad/arch-proj/project-kiavash'
-[1;32mAll tests passed! (7 tests)[0m
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/brtest0.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 10 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x00000000
+r 4 = 0x00000000
+r 5 = 0x00000001
+r 6 = 0x00001337
+r 7 = 0x0000d00d
+r 8 = 0x00000000
+r 9 = 0x00000000
+r10 = 0x00000000
+r11 = 0x00000000
+r12 = 0x00000000
+r13 = 0x00000000
+r14 = 0x00000000
+r15 = 0x00000000
+r16 = 0x00000000
+r17 = 0x00000000
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x00000000
+diff -u test/default/brtest0.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/addiu.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 7 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x00000000
+r 4 = 0x00000000
+r 5 = 0x00000000
+r 6 = 0x00000000
+r 7 = 0x00000000
+r 8 = 0x00000005
+r 9 = 0x00000131
+r10 = 0x000001f4
+r11 = 0x00000243
+r12 = 0x00000000
+r13 = 0x00000000
+r14 = 0x00000000
+r15 = 0x00000000
+r16 = 0x00000000
+r17 = 0x00000000
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x00000000
+diff -u test/default/addiu.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/brtest2.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 6 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x00000000
+r 4 = 0x00000000
+r 5 = 0x00000000
+r 6 = 0x00000000
+r 7 = 0x0000d00d
+r 8 = 0x00000000
+r 9 = 0x00000000
+r10 = 0x00000000
+r11 = 0x00000000
+r12 = 0x00000000
+r13 = 0x00000000
+r14 = 0x00000000
+r15 = 0x00000000
+r16 = 0x00000000
+r17 = 0x00000000
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x00000000
+diff -u test/default/brtest2.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/memtest0.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 32 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x10000004
+r 4 = 0x00000000
+r 5 = 0x000000ff
+r 6 = 0x000001fe
+r 7 = 0x000003fc
+r 8 = 0x0000792c
+r 9 = 0x000000ff
+r10 = 0x000001fe
+r11 = 0x000003fc
+r12 = 0x0000792c
+r13 = 0x000000ff
+r14 = 0x000000ff
+r15 = 0x000001fe
+r16 = 0x000003fc
+r17 = 0x0000881d
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x00000000
+diff -u test/default/memtest0.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/shifttest.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 9 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x0000ffff
+r 4 = 0xffff0000
+r 5 = 0x003fffc0
+r 6 = 0xffffffc0
+r 7 = 0x0000003f
+r 8 = 0x00ffff00
+r 9 = 0x0000003f
+r10 = 0x00000000
+r11 = 0x00000000
+r12 = 0x00000000
+r13 = 0x00000000
+r14 = 0x00000000
+r15 = 0x00000000
+r16 = 0x00000000
+r17 = 0x00000000
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x00000000
+diff -u test/default/shifttest.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/default/arithtest.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 17 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x00000800
+r 4 = 0x00000c00
+r 5 = 0x000004d2
+r 6 = 0x04d20000
+r 7 = 0x04d2270f
+r 8 = 0x04d2230f
+r 9 = 0x00000400
+r10 = 0x000004ff
+r11 = 0x00269000
+r12 = 0x004d2000
+r13 = 0x00000000
+r14 = 0x00000000
+r15 = 0xfffffb01
+r16 = 0x00000000
+r17 = 0x00640000
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x00000000
+diff -u test/default/arithtest.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+make[1]: Entering directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+cp test/hogo/jal.mem output/instructions.mem
+./obj_dir/Vmips_machine
+UNKNOWN FUNC: 001100
+- 323src/mips_machine.sv:57: Verilog $finish
+=== Simulation Cycle 8 ===
+*** RegisterFile dump ***
+r 0 = 0x00000000
+r 1 = 0x00000000
+r 2 = 0x0000000a
+r 3 = 0x00000000
+r 4 = 0x00000005
+r 5 = 0x0000000a
+r 6 = 0x00000000
+r 7 = 0x00000000
+r 8 = 0x0000000f
+r 9 = 0x00000000
+r10 = 0x00000000
+r11 = 0x00000000
+r12 = 0x00000000
+r13 = 0x00000000
+r14 = 0x00000000
+r15 = 0x00000000
+r16 = 0x00000000
+r17 = 0x00000000
+r18 = 0x00000000
+r19 = 0x00000000
+r20 = 0x00000000
+r21 = 0x00000000
+r22 = 0x00000000
+r23 = 0x00000000
+r24 = 0x00000000
+r25 = 0x00000000
+r26 = 0x00000000
+r27 = 0x00000000
+r28 = 0x00000000
+r29 = 0x00000000
+r30 = 0x00000000
+r31 = 0x0000000c
+diff -u test/hogo/jal.reg output/regdump.reg 1>&2
+make[1]: Leaving directory '/home/hirbod/Desktop/Projects/University/project-kiavash'
+[1;32mAll tests passed! (9 tests)[0m
