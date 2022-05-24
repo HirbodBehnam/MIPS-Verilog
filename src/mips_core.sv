@@ -49,6 +49,7 @@ wire c_Link;
 wire c_JumpReg;
 wire c_PcOrMem;
 wire c_SignExtend;
+wire c_MemByte;
 
 //regfile wires
 wire [4:0] r_writereg1;
@@ -66,7 +67,9 @@ wire [31:0] rs2; // jump address
 wire [31:0] rs3;
 wire [27:0] rs4;
 wire [31:0] rs5;
-// registers
+// memory
+wire [7:0] byte_mem_data_loader;
+wire [7:0] byte_mem_data_saver [0:3];
 
 
 //instantiation
@@ -95,7 +98,8 @@ CU ct(.opcode(inst[31:26]),
 	.MemRead(c_MemRead),
 	.Halted(halted),
 	.rst_b(rst_b),
-	.SignExtend(c_SignExtend)
+	.SignExtend(c_SignExtend),
+	.MemByte(c_MemByte)
 );
 
 regfile rr(.rs_num(inst[25:21]),
@@ -121,17 +125,20 @@ adder a1(.res(rs3),
 	.b(rs5)
 );
 
+ByteSaver bs(.mem_data_in(mem_data_out), .mem_addr(mem_addr), .data(r_read2[7:0]), .mem_data_out(byte_mem_data_saver));
+ByteLoader bl(.mem_data_in(mem_data_out), .mem_addr(mem_addr), .mem_data_out(byte_mem_data_loader));
+
 //data flow
 
 
 assign write_buffer = {mem_data_out[0],mem_data_out[1],mem_data_out[2],mem_data_out[3]};
 assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31;
 
-assign r_writedata = c_Link ? (c_MemToReg ? write_buffer : a_out) : rs1;
+assign r_writedata = c_Link ? (c_MemToReg ? (c_MemByte ? {8'b0, 8'b0, 8'b0, byte_mem_data_loader} : write_buffer) : a_out) : rs1;
 
 assign a_b = c_ALUsrc ? ext_15_0 : r_read2;
 
-assign {mem_data_in[0],mem_data_in[1],mem_data_in[2],mem_data_in[3]} = r_read2;
+assign {mem_data_in[0],mem_data_in[1],mem_data_in[2],mem_data_in[3]} = c_MemByte ? {byte_mem_data_saver[0], byte_mem_data_saver[1], byte_mem_data_saver[2], byte_mem_data_saver[3]} : r_read2;
 assign mem_addr = a_out;
 
 assign rs1 = inst_addr + 4;
@@ -151,7 +158,7 @@ always @(posedge clk or negedge rst_b) begin
 		//$display("RESET");
 	end else begin
 		inst_addr <= inst_addr_load;
-		//$display("got %b on %d", inst, inst_addr_load / 4);
+		//$display("got %b on %d", inst, inst_addr / 4);
 	end
 end
 

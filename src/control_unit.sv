@@ -17,11 +17,12 @@ module CU(
     output reg MemRead, // ok 
     output reg RegWrite, // ok
     output reg Halted,
-    output reg SignExtend
+    output reg SignExtend,
+    output reg MemByte
 );
 
     always @(*) begin
-    {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, Link, SignExtend} = 0;
+    {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, Link, SignExtend, MemByte} = 0;
 	if(~rst_b)
 	begin
 		Halted = 0;
@@ -181,6 +182,18 @@ module CU(
 
                 `SW: begin
                     {ALUsrc, MemWrite} = 2'b11;
+                    {ALUOp} = `ALU_ADD;
+		            SignExtend = 1;
+                end
+
+                `LB: begin
+                    {ALUsrc, Link, RegWrite, MemRead, MemToReg, MemByte} = 6'b111111;
+                    {ALUOp} = `ALU_ADD;
+		            SignExtend = 1;
+                end
+
+                `SB: begin
+                    {ALUsrc, MemWrite, MemByte} = 3'b111;
                     {ALUOp} = `ALU_ADD;
 		            SignExtend = 1;
                 end
