@@ -1,5 +1,5 @@
-//`include "src/control_unit_macros.sv"
-//`include "src/alu_opts.sv"
+`include "src/control_unit_macros.sv"
+`include "src/alu_opts.sv"
 
 module CU(
     input wire [5:0] opcode,
