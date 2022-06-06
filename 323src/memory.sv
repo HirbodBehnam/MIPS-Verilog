@@ -46,6 +46,7 @@ module memory(
                 mem[ea + 1] <= data_in[1];
                 mem[ea + 2] <= data_in[2];
                 mem[ea + 3] <= data_in[3];
+                $display("wrote %h in %h", {data_in[0], data_in[1], data_in[2], data_in[3]},ea);
             end
         end
     end

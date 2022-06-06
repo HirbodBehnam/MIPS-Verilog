@@ -132,7 +132,7 @@ adder a1(.res(rs3),
 
 Cache cache(
 	.clk(clk),
-	.reset(rst_b),
+	.rst_b(rst_b),
 	.mem_addr(a_out), // memory address is conected to alu
 	.data_in(cache_data_in), // connected to second register file output
 	.mem_data_out(mem_data_out), // connect to memory data output
@@ -169,6 +169,8 @@ always @(posedge clk or negedge rst_b) begin
 		inst_addr <= -4;
 		//$display("RESET");
 	end else begin
+		if (load_next_instruction & cache_enable & c_MemToReg)
+			$display("got %h on address %h to register %d", r_writedata, a_out, r_writereg1);
 		if (load_next_instruction)
 			inst_addr <= inst_addr_load;
 		//$display("got %b on %d", inst, inst_addr / 4);
