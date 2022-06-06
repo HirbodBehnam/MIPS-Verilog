@@ -45,8 +45,8 @@ module ALU(
             `ALU_OR: out = a | b;  // or
             `ALU_NOR: out = a ~| b; // nor
             // Shift operations
-            `ALU_UNSIGNED_SHIFT_LEFT: out = a << b;
-            `ALU_UNSIGNED_SHIFT_RIGHT: out = a >> b;
+            `ALU_UNSIGNED_SHIFT_LEFT: out = b << a;
+            `ALU_UNSIGNED_SHIFT_RIGHT: out = b >> a;
             `ALU_UNSIGNED_SHIFT_LEFT_SH_AMOUNT: out = b << shamt;
             `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT: out = b >> shamt;
             `ALU_SIGNED_SHIFT_LEFT_SH_AMOUNT: out = $signed(b) <<< shamt;
