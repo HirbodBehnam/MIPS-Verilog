@@ -135,11 +135,12 @@ Cache cache(
 	.reset(rst_b),
 	.mem_addr(a_out), // memory address is conected to alu
 	.data_in(cache_data_in), // connected to second register file output
+	.mem_data_out(mem_data_out), // connect to memory data output
 	.byte_mode(c_MemByte), // control unit says it
 	.write_enable(c_MemWrite), // same as above, control unit thing
 	.enable(cache_enable), // either we must be writing or reading memory
 	.data_out(cache_data_out), // can be either memory write data or memory read data
-	.output_mem_addr(mem_addr), // always memory write
+	.output_mem_addr(mem_addr), // is here for write or read of other words in block
 	.mem_write_en(mem_write_en), // cache enables the write
 	.ready(cache_ready) // ready to fetch the next instruction
 );
@@ -151,8 +152,6 @@ assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31;
 assign r_writedata = c_Link ? (c_MemToReg ? {cache_data_out[0], cache_data_out[1], cache_data_out[2], cache_data_out[3]} : a_out) : rs1;
 
 assign a_b = c_ALUsrc ? ext_15_0 : r_read2;
-
-assign mem_addr = a_out;
 
 assign rs1 = inst_addr + 4;
 assign rs2 = {rs1[31:28],rs4};
