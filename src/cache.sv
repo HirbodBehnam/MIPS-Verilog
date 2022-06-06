@@ -17,24 +17,21 @@ module Cache(
     // always at clock:
     	// if(enable):
 		// take block mem_addr[12:2]
-		// check tag(3 bits) and valid/// 8Kb = 2048 word = 2^11 word
-		// // addr = mem_addr = 0000000000000000|___|___________|__
-		// //                  zero(memory size) tag    block     byte
-		// if(hit):
-			//if(byte_mode)
-				// data_out = {sign_extend, cache_mem[addr%(1<<13)]
-			//data_out = cache_mem[addr[31:2] + 0:3]
+		// check tag(3 bits) and valid bit
+		// // addr = mem_addr = 0000000000000000|_3_|____11_____|_2_
+		// //                  zero(memory size) tag    block    byte
 		// if(miss):
+			// if(dirty):
+				// write back
 			// output_mem_addr = mem_addr
-			// wait 4 clocks
-			// cache[mem_add[12:2 + 0:3] = mem_data_out[0:3]
-			// valid[mem_addr[12:2]] = 1
-			// tag[mem_addr[12:2]] = mem_addr[15:13]
-			// // output
-			//if(byte_mode)
-				// data_out = {sign_extend, cache_mem[addr%(1<<13)]
-			//data_out = cache_mem[addr[31:2] + 0:3]
-		
+			// wait for sufficient time to read from memory
+			// set output
+		// if(write_enable):
+			// manipulate cahce data
+			// set dirty bit
+		// else:
+			// write output data
+
 	reg [7:0] cache_mem [8191:0];
 	reg clk_counter;
 	reg valid [2048:0];
@@ -65,39 +62,66 @@ module Cache(
 			end
 		end else begin
 			if(enable) begin
-				if(write_enable) begin
-					//TODO: write
-				end else begin
-					if( !( (curr_tagg == tag[curr_block]) && valid[curr_block] ) ) begin // miss -> fetch from memory
-						ready = 0;
-						output_mem_addr = mem_addr;
-						mem_write_en = 0;
-						@(posedge clk); // we do this because memory doesnt have a ready signal. if the memory had a ready signal we could just @(posedge mem_ready)
-						@(posedge clk);
-						@(posedge clk);
-						@(posedge clk); // to make sure mem_write_en is recieved by memory
+				if( !( (curr_tagg == tag[curr_block]) && valid[curr_block] ) ) begin // miss -> [write back]? -> fetch from memory
+					ready = 0;
+					//write back i f dirty
+					if(dirty[curr_block]) begin
+						output_mem_addr = {16'b0,tag[curr_block],curr_block,2'b00};
+						data_out[0] = cache_mem[{curr_block,2'b00}];	
+						data_out[1] = cache_mem[{curr_block,2'b01}];	
+						data_out[2] = cache_mem[{curr_block,2'b10}];	
+						data_out[3] = cache_mem[{curr_block,2'b11}];	
+						if(~mem_write_en) begin
+							mem_write_en = 1;
+							@(posedge clk); // we do this because memory doesnt have a ready signal. if the memory had a ready signal we could just @(posedge mem_ready)
+							@(posedge clk);
+							@(posedge clk);
+							@(posedge clk); // to make sure mem_write_en is recieved by memory
+						end
 
 						@(posedge clk);
 						@(posedge clk);
 						@(posedge clk);
 						@(posedge clk); // memory delay
 
-						cache_mem[{curr_block, 2'b00}] = mem_data_out[0];
-						cache_mem[{curr_block, 2'b01}] = mem_data_out[1];
-						cache_mem[{curr_block, 2'b10}] = mem_data_out[2];
-						cache_mem[{curr_block, 2'b11}] = mem_data_out[3];
+					end
+					output_mem_addr = mem_addr;
+					if(mem_write_en) begin
+						mem_write_en = 0;
+						@(posedge clk); // we do this because memory doesnt have a ready signal. if the memory had a ready signal we could just @(posedge mem_ready)
+						@(posedge clk);
+						@(posedge clk);
+						@(posedge clk); // to make sure mem_write_en is recieved by memory
+					end
 
-						tag[curr_block] = curr_tag;
-						valid[curr_block] = 1;
+					@(posedge clk);
+					@(posedge clk);
+					@(posedge clk);
+					@(posedge clk); // memory delay
 
+					cache_mem[{curr_block, 2'b00}] = mem_data_out[0];
+					cache_mem[{curr_block, 2'b01}] = mem_data_out[1];
+					cache_mem[{curr_block, 2'b10}] = mem_data_out[2];
+					cache_mem[{curr_block, 2'b11}] = mem_data_out[3];
 
-					end // write to output
-					data_out[0] = cache_mem[{curr_block, 2'b00}];
-					data_out[1] = cache_mem[{curr_block, 2'b01}];
-					data_out[2] = cache_mem[{curr_block, 2'b10}];
-					data_out[3] = cache_mem[{curr_block, 2'b11}];
+					tag[curr_block] = curr_tag;
+					valid[curr_block] = 1;
+					dirty[curr_block] = 0;
 
-					//						data_out= cache_buffer;
+				end
+				if(write_enable) begin
+					if(byte_mode) begin
+						cache_mem[{curr_block, curr_byte}] = data_in[0];
+					end else begin
+						cache_mem[{curr_block, 2'b00}] = data_in[0];
+						cache_mem[{curr_block, 2'b01}] = data_in[1];
+						cache_mem[{curr_block, 2'b10}] = data_in[2];
+						cache_mem[{curr_block, 2'b11}] = data_in[3];
+					end
+
+				end else begin	
+					// write to output
+										//						data_out= cache_buffer;
 					if(byte_mode) begin
 						data_out[0] = cache_mem[{curr_block, curr_byte}];
 						if(data_out[0][7]) begin
@@ -109,10 +133,14 @@ module Cache(
 							data_out[2] = 8'b0;
 							data_out[3] = 8'b0;
 						end
-					end
+					end else begin
+					data_out[0] = cache_mem[{curr_block, 2'b00}];
+					data_out[1] = cache_mem[{curr_block, 2'b01}];
+					data_out[2] = cache_mem[{curr_block, 2'b10}];
+					data_out[3] = cache_mem[{curr_block, 2'b11}];
 				end
 			end
 		end
-
 	end
-	endmodule
+end
+endmodule
