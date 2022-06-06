@@ -109,6 +109,8 @@ module Cache(
 					valid[curr_block] = 1;
 					dirty[curr_block] = 0;
 
+					ready =1;
+
 				end
 				if(write_enable) begin
 					if(byte_mode) begin
