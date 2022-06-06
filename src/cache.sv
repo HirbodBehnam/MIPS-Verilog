@@ -12,7 +12,8 @@ module Cache(
     output wire mem_write_en, // should we enable the memory write
     output wire ready // is data_out ready?
     );
-    
+   
+
     // TODO: IMPLEMENT cache with 2048 x 1 word blocks
     // always at clock:
     	// if(enable):
