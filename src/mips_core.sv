@@ -3,7 +3,7 @@
 //`include "src/alu.sv"
 //`include "src/control_unit.sv"
 //`include "323src/regfile.sv"
-//
+//`include "src/cache.sv"
 
 module mips_core(
 	inst_addr,
@@ -67,9 +67,14 @@ wire [31:0] rs2; // jump address
 wire [31:0] rs3;
 wire [27:0] rs4;
 wire [31:0] rs5;
-// memory
-wire [7:0] byte_mem_data_loader;
-wire [7:0] byte_mem_data_saver [0:3];
+// cache control and multi cycle
+wire cache_ready;
+wire [7:0] cache_data_out [0:3];
+assign mem_data_in = cache_data_out;
+wire [7:0] cache_data_in [0:3];
+assign {cache_data_in[0], cache_data_in[1], cache_data_in[2], cache_data_in[3]} = r_read2;
+wire cache_enable = c_MemRead | c_MemWrite;
+wire load_next_instruction = ~(c_MemRead | c_MemWrite) | cache_ready;
 
 
 //instantiation
@@ -90,7 +95,7 @@ CU ct(.opcode(inst[31:26]),
 	.Branch(c_Branch),
 	.MemToReg(c_MemToReg),
 	.ALUOp(c_ALUOp),
-	.MemWrite(mem_write_en),
+	.MemWrite(c_MemWrite),
 	.JumpReg(c_JumpReg),
 	.ALUsrc(c_ALUsrc),
 	.RegWrite(c_regWrite),
@@ -125,20 +130,28 @@ adder a1(.res(rs3),
 	.b(rs5)
 );
 
-ByteSaver bs(.mem_data_in(mem_data_out), .mem_addr(mem_addr), .data(r_read2[7:0]), .mem_data_out(byte_mem_data_saver));
-ByteLoader bl(.mem_data_in(mem_data_out), .mem_addr(mem_addr), .mem_data_out(byte_mem_data_loader));
+Cache cache(
+	.clk(clk),
+	.reset(rst_b),
+	.mem_addr(a_out), // memory address is conected to alu
+	.data_in(cache_data_in), // connected to second register file output
+	.byte_mode(c_MemByte), // control unit says it
+	.write_enable(c_MemWrite), // same as above, control unit thing
+	.enable(cache_enable), // either we must be writing or reading memory
+	.data_out(cache_data_out), // can be either memory write data or memory read data
+	.output_mem_addr(mem_addr), // always memory write
+	.mem_write_en(mem_write_en), // cache enables the write
+	.ready(cache_ready) // ready to fetch the next instruction
+);
 
 //data flow
 
-
-assign write_buffer = {mem_data_out[0],mem_data_out[1],mem_data_out[2],mem_data_out[3]};
 assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31;
 
-assign r_writedata = c_Link ? (c_MemToReg ? (c_MemByte ? {8'b0, 8'b0, 8'b0, byte_mem_data_loader} : write_buffer) : a_out) : rs1;
+assign r_writedata = c_Link ? (c_MemToReg ? {cache_data_out[0], cache_data_out[1], cache_data_out[2], cache_data_out[3]} : a_out) : rs1;
 
 assign a_b = c_ALUsrc ? ext_15_0 : r_read2;
 
-assign {mem_data_in[0],mem_data_in[1],mem_data_in[2],mem_data_in[3]} = c_MemByte ? {byte_mem_data_saver[0], byte_mem_data_saver[1], byte_mem_data_saver[2], byte_mem_data_saver[3]} : r_read2;
 assign mem_addr = a_out;
 
 assign rs1 = inst_addr + 4;
@@ -157,7 +170,8 @@ always @(posedge clk or negedge rst_b) begin
 		inst_addr <= -4;
 		//$display("RESET");
 	end else begin
-		inst_addr <= inst_addr_load;
+		if (load_next_instruction)
+			inst_addr <= inst_addr_load;
 		//$display("got %b on %d", inst, inst_addr / 4);
 	end
 end

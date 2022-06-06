@@ -7,7 +7,7 @@ module Cache(
     input wire write_enable,
     input wire enable,
     output wire [7:0] data_out [0:3], // data read or the data which must be written to
-    output wire [31:0] output_mem_addr, // must be here to handle byte writes
+    output wire [31:0] output_mem_addr, // must be here because our cache is write back!
     output wire mem_write_en, // should we enable the memory write
     output wire ready // is data_out ready?
     );
