@@ -200,7 +200,7 @@ module CU(
 
                 `SLTi: begin
                     {ALUsrc, Link, RegWrite} = 3'b111;
-                    {ALUOp} = `ALU_COMP_LE;
+                    {ALUOp} = `ALU_COMP_LT;
 		            SignExtend = 1;
                 end
 
