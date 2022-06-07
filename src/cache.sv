@@ -137,7 +137,7 @@ always @(posedge clk or negedge reset) begin
 				$display("===hit occured");
 				$display("writing to cache");
 				if(byte_mode) begin
-					cache_mem[{curr_block, curr_byte}] = data_in[0];
+					cache_mem[{curr_block, curr_byte}] = data_in[3];
 				end else begin
 					cache_mem[{curr_block, 2'b00}] = data_in[0];
 					cache_mem[{curr_block, 2'b01}] = data_in[1];
@@ -152,15 +152,15 @@ always @(posedge clk or negedge reset) begin
 				// write to output
 				//						data_out= cache_buffer;
 				if(byte_mode) begin
-					data_out[0] = cache_mem[{curr_block, curr_byte}];
-					if(data_out[0][7]) begin
+					data_out[3] = cache_mem[{curr_block, curr_byte}];
+					if(data_out[3][7]) begin
+						data_out[0] = 8'b1;
 						data_out[1] = 8'b1;
 						data_out[2] = 8'b1;
-						data_out[3] = 8'b1;
 					end else begin
+						data_out[0] = 8'b0;
 						data_out[1] = 8'b0;
 						data_out[2] = 8'b0;
-						data_out[3] = 8'b0;
 					end
 				end else begin
 					data_out[0] = cache_mem[{curr_block, 2'b00}];
