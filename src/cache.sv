@@ -14,13 +14,13 @@ module Cache(
     );
    
 
-    // TODO: IMPLEMENT cache with 2048 x 1 word blocks
+    // IMPLEMENTED cache with 2048 x 1 word blocks
     // always at clock:
     	// if(enable):
 		// take block mem_addr[12:2]
-		// check tag(3 bits) and valid bit
+		// check tag(3+16 bits) and valid bit
 		// // addr = mem_addr = 0000000000000000|_3_|____11_____|_2_
-		// //                  zero(memory size) tag    block    byte
+		// //                    tag (not used)  tag    block    byte
 		// if(miss):
 			// if(dirty):
 				// write back
@@ -48,7 +48,7 @@ module Cache(
 	wire [1:0] curr_byte_temp, curr_byte;
 
 	assign {curr_tag, curr_block, curr_byte_temp} = mem_addr;
-	assign curr_byte = ~curr_byte_temp;
+	assign curr_byte = ~curr_byte_temp; // fuck byte ordering
 
 	always @(posedge clk or negedge reset) begin
 		// always reset these outputs
@@ -57,10 +57,7 @@ module Cache(
 		// check cache reset
 		if(~reset) begin
 			for(integer i=0;i<2048;i++) begin
-				cache_mem[4*i+0] = 0;
-				cache_mem[4*i+1] = 0;
-				cache_mem[4*i+2] = 0;
-				cache_mem[4*i+3] = 0;
+				cache_mem[i] = 0;
 				valid[i]=0;
 				tag[i] =0;
 				dirty[i] =0;
@@ -78,12 +75,12 @@ module Cache(
 									cache_mem[curr_block][curr_byte*8 +: 8] = data_in[3]; // https://stackoverflow.com/a/17779414
 								else // just write to cache!
 									cache_mem[curr_block] = {data_in[0], data_in[1], data_in[2], data_in[3]};
-								$display("written %h on %h; block now %h", {data_in[0], data_in[1], data_in[2], data_in[3]}, curr_block, cache_mem[curr_block]);
+								//$display("written %h on %h; block now %h", {data_in[0], data_in[1], data_in[2], data_in[3]}, curr_block, cache_mem[curr_block]);
 							end else begin // we send out data
 								{data_out[0], data_out[1], data_out[2], data_out[3]} = byte_mode
 																				? {{24{cache_mem[curr_block][curr_byte*8+7]}}, cache_mem[curr_block][curr_byte*8 +: 8]}
 																				: cache_mem[curr_block];
-								$display("hit %h for %h", {data_out[0], data_out[1], data_out[2], data_out[3]}, mem_addr);
+								//$display("hit %h for %h", {data_out[0], data_out[1], data_out[2], data_out[3]}, mem_addr);
 							end
 							state = state_ready; // next we are ready...
 						end else begin // miss :(
@@ -91,7 +88,7 @@ module Cache(
 							if (dirty[curr_block]) begin // we have to write back
 								output_mem_addr = {tag[curr_block], curr_block, 2'b0}; // set the address as tag itself
 								{data_out[0], data_out[1], data_out[2], data_out[3]} = cache_mem[curr_block]; // set data
-								$display("WRITE BACK %h on %h", {data_out[0], data_out[1], data_out[2], data_out[3]}, output_mem_addr);
+								//$display("WRITE BACK %h on %h", {data_out[0], data_out[1], data_out[2], data_out[3]}, output_mem_addr);
 								clk_counter = 0;
 								state = state_write_back; // write back
 							end else begin
@@ -104,7 +101,7 @@ module Cache(
 					state_write_back: begin
 						if (clk_counter == 5) begin
 							output_mem_addr = mem_addr; // load the word
-							$display("starting to load %h", mem_addr);
+							//$display("starting to load %h", mem_addr);
 							clk_counter = 0;
 							state = state_load;
 						end else
@@ -117,7 +114,7 @@ module Cache(
 							tag[curr_block] = curr_tag; // update the tag
 							dirty[curr_block] = 0;
 							state = state_start;
-							$display("cache set %h on %h as result", cache_mem[curr_block], curr_block);
+							//$display("cache set %h on %h as result", cache_mem[curr_block], curr_block);
 						end else
 							clk_counter++;
 						//$display("waiting for load %h (%h | %h)", {mem_data_out[0], mem_data_out[1], mem_data_out[2], mem_data_out[3]}, mem_addr, output_mem_addr);
