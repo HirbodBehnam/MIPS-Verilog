@@ -33,27 +33,27 @@ module Cache(
 		// else:
 			// write output data
 
-	reg [7:0] cache_mem [8191:0];
-	reg [3:0] clk_counter;
-	reg valid [2047:0];
-	reg dirty [2047:0];
-	reg [2:0] tag[2047:0];
+	reg [31:0] cache_mem [2047:0]; // cache blocks
+	reg valid [2047:0]; // is the block valid
+	reg dirty [2047:0]; // is block dirty or not?
+	reg [2:0] tag [2047:0]; // tag of block
 
-	reg [2:0] curr_tag;
-	reg [10:0] curr_block;
-	reg [1:0] curr_byte;
+	// State of cache
+	reg [1:0] state;
+	localparam state_start = 2'b00, state_write_back = 2'b01, state_load = 2'b10, state_ready = 2'b11;
+	reg [2:0] clk_counter;
 
+	wire [2:0] curr_tag;
+	wire [10:0] curr_block;
+	wire [1:0] curr_byte;
 
-	reg wait_flag_read;
-	reg wait_flag_write;
+	assign {curr_tag, curr_block, curr_byte} = mem_addr[15:0];
 
-//	reg [7:0] cache_buffer [0:3];
-
-	
-
-	reg state[2:0];
 	always @(posedge clk or negedge reset) begin
-		{curr_tag, curr_block, curr_byte} = mem_addr[15:0];
+		// always reset these outputs
+		ready = 0;
+		mem_write_en = 0;
+		// check cache reset
 		if(~reset) begin
 			for(integer i=0;i<2048;i++) begin
 				cache_mem[4*i+0] = 0;
@@ -64,99 +64,64 @@ module Cache(
 				tag[i] =0;
 				dirty[i] =0;
 			end
-			clk_counter=0;
-			wait_flag_read =0;
-			wait_flag_write = 0;
+			clk_counter = 0;
+			state = state_start;
 		end else begin
-			if(enable) begin
-				if( wait_flag_read || wait_flag_write || !( (curr_tag == tag[curr_block]) && valid[curr_block] ) ) begin // miss -> [write back]? -> fetch from memory
-					ready = 0;
-					//write back i f dirty
-					if(wait_flag_write || dirty[curr_block]) begin
-						if(~wait_flag_write) begin
-							output_mem_addr = {16'b0,tag[curr_block],curr_block,2'b00};
-							data_out[0] = cache_mem[{curr_block,2'b00}];	
-							data_out[1] = cache_mem[{curr_block,2'b01}];	
-							data_out[2] = cache_mem[{curr_block,2'b10}];	
-							data_out[3] = cache_mem[{curr_block,2'b11}];	
-							wait_flag_write = 1;
-							clk_counter = 4;
-							if(~mem_write_en) begin
-								mem_write_en = 1;
-								clk_counter = 8;
+			if(enable) begin // if enable is not active we wont do anything
+				case (state)
+					state_start: begin // we should check for hit or miss and move on...
+						if (curr_tag == tag[curr_block] && valid[curr_block]) begin // hit!
+							if (write_enable) begin // we just write to cache
+								dirty[curr_block] = 1; // we write so dirty!
+								if (byte_mode) // check the index to write
+									cache_mem[curr_block][curr_byte*8 +: 8] = data_in[3]; // https://stackoverflow.com/a/17779414
+								else // just write to cache!
+									cache_mem[curr_block] = {data_in[0], data_in[1], data_in[2], data_in[3]};
+								$display("written %h on %h; block now %h", {data_in[0], data_in[1], data_in[2], data_in[3]}, curr_block, cache_mem[curr_block]);
+							end else begin // we send out data
+								{data_out[0], data_out[1], data_out[2], data_out[3]} = byte_mode
+																				? {{24{cache_mem[curr_block][curr_byte*8+7]}}, cache_mem[curr_block][curr_byte*8 +: 8]}
+																				: cache_mem[curr_block];
+								$display("hit %h for %h", {data_out[0], data_out[1], data_out[2], data_out[3]}, mem_addr);
 							end
-						end else begin
-							if(|clk_counter)
-								clk_counter=  clk_counter -1;
-							else begin
-								wait_flag_write = 0;
-								dirty[curr_block] = 0;
-							end
-						end
-
-
-					end else if(~wait_flag_write) begin
-						if(~wait_flag_read) begin
-							output_mem_addr = mem_addr;
-							clk_counter = 4;
-							if(mem_write_en) begin
-								mem_write_en = 0;
-								clk_counter = 8;
-							end
-						end else begin
-							if(|clk_counter)
-								clk_counter = clk_counter -1;
-							else begin
-								cache_mem[{curr_block, 2'b00}] = mem_data_out[0];
-								cache_mem[{curr_block, 2'b01}] = mem_data_out[1];
-								cache_mem[{curr_block, 2'b10}] = mem_data_out[2];
-								cache_mem[{curr_block, 2'b11}] = mem_data_out[3];
-
-								tag[curr_block] = curr_tag;
-								valid[curr_block] = 1;
-								dirty[curr_block] = 0;
-
-								ready =1;
-								wait_flag_read = 0;
+							state = state_ready; // next we are ready...
+						end else begin // miss :(
+							valid[curr_block] = 1; // we will have something valid here
+							if (dirty[curr_block]) begin // we have to write back
+								mem_write_en = 1; // only for one clock!
+								output_mem_addr = {16'b0, tag[curr_block], curr_block, 2'b0};
+								clk_counter = 0;
+								state = state_write_back; // write back
+							end else begin
+								output_mem_addr = {16'b0, curr_tag, curr_block, 2'b0}; // load the word
+								clk_counter = 0;
+								state = state_load; // go to load
 							end
 						end
 					end
-
-				end
-				if(~wait_flag_write && ~wait_flag_read && write_enable) begin
-					if(byte_mode) begin
-						cache_mem[{curr_block, curr_byte}] = data_in[0];
-					end else begin
-						cache_mem[{curr_block, 2'b00}] = data_in[0];
-						cache_mem[{curr_block, 2'b01}] = data_in[1];
-						cache_mem[{curr_block, 2'b10}] = data_in[2];
-						cache_mem[{curr_block, 2'b11}] = data_in[3];
+					state_write_back: begin
+						if (clk_counter == 4) begin
+							output_mem_addr = {16'b0, curr_tag, curr_block, 2'b0}; // load the word
+							clk_counter = 0;
+							state = state_load;
+						end else
+							clk_counter++;
 					end
-
-				end else if(~wait_flag_write && ~wait_flag_read) begin	
-					// write to output
-					//						data_out= cache_buffer;
-					if(byte_mode) begin
-						data_out[0] = cache_mem[{curr_block, curr_byte}];
-						if(data_out[0][7]) begin
-							data_out[1] = 8'b1;
-							data_out[2] = 8'b1;
-							data_out[3] = 8'b1;
-						end else begin
-							data_out[1] = 8'b0;
-							data_out[2] = 8'b0;
-							data_out[3] = 8'b0;
-						end
-					end else begin
-						data_out[0] = cache_mem[{curr_block, 2'b00}];
-						data_out[1] = cache_mem[{curr_block, 2'b01}];
-						data_out[2] = cache_mem[{curr_block, 2'b10}];
-						data_out[3] = cache_mem[{curr_block, 2'b11}];
+					state_load: begin
+						if (clk_counter == 4) begin
+							cache_mem[curr_block] = {mem_data_out[0], mem_data_out[1], mem_data_out[2], mem_data_out[3]};
+							state = state_start;
+							$display("cache set %h on %h as result", cache_mem[curr_block], curr_block);
+						end else
+							clk_counter++;
+						//$display("waiting for load %h (%h | %h)", {mem_data_out[0], mem_data_out[1], mem_data_out[2], mem_data_out[3]}, mem_addr, output_mem_addr);
 					end
-				end
+					state_ready: begin
+						ready = 1;
+						state = state_start;
+					end
+				endcase
 			end
 		end
 	end
 endmodule
-
-
