@@ -7,10 +7,10 @@ module Cache(
     input wire byte_mode, // should we write/read byte?
     input wire write_enable, // should we write?
     input wire enable, // do we anything to do with cache and memory?
-    output wire [7:0] data_out [0:3], // data read or the data which must be written to
-    output wire [31:0] output_mem_addr, // must be here because our cache is write back! or we want to read other words for block
-    output wire mem_write_en, // should we enable the memory write
-    output wire ready // is data_out ready?
+    output reg [7:0] data_out [0:3], // data read or the data which must be written to
+    output reg [31:0] output_mem_addr, // must be here because our cache is write back! or we want to read other words for block
+    output reg mem_write_en, // should we enable the memory write
+    output reg ready // is data_out ready?
     );
    
 
@@ -58,7 +58,6 @@ module Cache(
 			for(integer i=0;i<2048;i++) begin
 				cache_mem[4*i+0] = 0;
 				cache_mem[4*i+1] = 0;
-				wait_flag = 0;
 				cache_mem[4*i+2] = 0;
 				cache_mem[4*i+3] = 0;
 				valid[i]=0;
@@ -70,7 +69,7 @@ module Cache(
 			wait_flag_write = 0;
 		end else begin
 			if(enable) begin
-				if( wait_flag_read || wait_flag_write || !( (curr_tagg == tag[curr_block]) && valid[curr_block] ) ) begin // miss -> [write back]? -> fetch from memory
+				if( wait_flag_read || wait_flag_write || !( (curr_tag == tag[curr_block]) && valid[curr_block] ) ) begin // miss -> [write back]? -> fetch from memory
 					ready = 0;
 					//write back i f dirty
 					if(wait_flag_write || dirty[curr_block]) begin
@@ -124,7 +123,7 @@ module Cache(
 					end
 
 				end
-				if(~wait_flag_write && ~wait_flag_read && Write_enable) begin
+				if(~wait_flag_write && ~wait_flag_read && write_enable) begin
 					if(byte_mode) begin
 						cache_mem[{curr_block, curr_byte}] = data_in[0];
 					end else begin
@@ -158,6 +157,6 @@ module Cache(
 			end
 		end
 	end
-	endmodule
+endmodule
 
 
