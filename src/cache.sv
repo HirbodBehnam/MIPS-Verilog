@@ -64,6 +64,7 @@ module Cache(
 				tag[i] =0;
 				dirty[i] =0;
 			end
+			$display("===cache reset");
 			clk_counter=0;
 			wait_flag_read =0;
 			wait_flag_write = 0;
@@ -71,8 +72,13 @@ module Cache(
 			if(enable) begin
 				if( wait_flag_read || wait_flag_write || !( (curr_tag == tag[curr_block]) && valid[curr_block] ) ) begin // miss -> [write back]? -> fetch from memory
 					ready = 0;
+					$display("===miss occured");
+					$display("%b",wait_flag_read);
+					$display("%b",wait_flag_write);
+					$display("%h",mem_addr);
+					$display("%d",clk_counter);
 					//write back i f dirty
-					if(wait_flag_write || dirty[curr_block]) begin
+					if(dirty[curr_block]) begin
 						if(~wait_flag_write) begin
 							output_mem_addr = {16'b0,tag[curr_block],curr_block,2'b00};
 							data_out[0] = cache_mem[{curr_block,2'b00}];	
@@ -99,31 +105,33 @@ module Cache(
 						if(~wait_flag_read) begin
 							output_mem_addr = mem_addr;
 							clk_counter = 4;
+							wait_flag_write = 1;
 							if(mem_write_en) begin
 								mem_write_en = 0;
 								clk_counter = 8;
 							end
-						end else begin
-							if(|clk_counter)
-								clk_counter = clk_counter -1;
-							else begin
-								cache_mem[{curr_block, 2'b00}] = mem_data_out[0];
-								cache_mem[{curr_block, 2'b01}] = mem_data_out[1];
-								cache_mem[{curr_block, 2'b10}] = mem_data_out[2];
-								cache_mem[{curr_block, 2'b11}] = mem_data_out[3];
+						end
+					end else begin
+						if(|clk_counter)
+							clk_counter = clk_counter -1;
+						else begin
+							cache_mem[{curr_block, 2'b00}] = mem_data_out[0];
+							cache_mem[{curr_block, 2'b01}] = mem_data_out[1];
+							cache_mem[{curr_block, 2'b10}] = mem_data_out[2];
+							cache_mem[{curr_block, 2'b11}] = mem_data_out[3];
 
-								tag[curr_block] = curr_tag;
-								valid[curr_block] = 1;
-								dirty[curr_block] = 0;
+							tag[curr_block] = curr_tag;
+							valid[curr_block] = 1;
+							dirty[curr_block] = 0;
 
-								ready =1;
-								wait_flag_read = 0;
-							end
+							ready =1;
+							wait_flag_read = 0;
 						end
 					end
-
 				end
 				if(~wait_flag_write && ~wait_flag_read && write_enable) begin
+					$display("===hit occured");
+					$display("writing to cache");
 					if(byte_mode) begin
 						cache_mem[{curr_block, curr_byte}] = data_in[0];
 					end else begin
@@ -134,6 +142,8 @@ module Cache(
 					end
 
 				end else if(~wait_flag_write && ~wait_flag_read) begin	
+					$display("===hit occured");
+					$display("reading from cache");
 					// write to output
 					//						data_out= cache_buffer;
 					if(byte_mode) begin
@@ -157,6 +167,6 @@ module Cache(
 			end
 		end
 	end
-endmodule
+	endmodule
 
 
