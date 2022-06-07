@@ -35,9 +35,9 @@ module Cache(
 
 	reg [7:0] cache_mem [8191:0];
 	reg [3:0] clk_counter;
-	reg valid [2048:0];
-	reg dirty [2048:0];
-	reg [2:0] tag[2048:0];
+	reg valid [2047:0];
+	reg dirty [2047:0];
+	reg [2:0] tag[2047:0];
 
 	reg [2:0] curr_tag;
 	reg [10:0] curr_block;
@@ -86,7 +86,7 @@ module Cache(
 								clk_counter = 8;
 							end
 						end else begin
-							if(clk_counter)
+							if(|clk_counter)
 								clk_counter=  clk_counter -1;
 							else begin
 								wait_flag_write = 0;
@@ -104,7 +104,7 @@ module Cache(
 								clk_counter = 8;
 							end
 						end else begin
-							if(clk_counter)
+							if(|clk_counter)
 								clk_counter = clk_counter -1;
 							else begin
 								cache_mem[{curr_block, 2'b00}] = mem_data_out[0];
