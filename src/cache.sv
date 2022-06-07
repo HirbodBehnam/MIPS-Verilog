@@ -45,9 +45,10 @@ module Cache(
 
 	wire [18:0] curr_tag;
 	wire [10:0] curr_block;
-	wire [1:0] curr_byte;
+	wire [1:0] curr_byte_temp, curr_byte;
 
-	assign {curr_tag, curr_block, curr_byte} = mem_addr;
+	assign {curr_tag, curr_block, curr_byte_temp} = mem_addr;
+	assign curr_byte = ~curr_byte_temp;
 
 	always @(posedge clk or negedge reset) begin
 		// always reset these outputs
