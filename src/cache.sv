@@ -36,18 +36,18 @@ module Cache(
 	reg [31:0] cache_mem [2047:0]; // cache blocks
 	reg valid [2047:0]; // is the block valid
 	reg dirty [2047:0]; // is block dirty or not?
-	reg [2:0] tag [2047:0]; // tag of block
+	reg [18:0] tag [2047:0]; // tag of block
 
 	// State of cache
 	reg [1:0] state;
 	localparam state_start = 2'b00, state_write_back = 2'b01, state_load = 2'b10, state_ready = 2'b11;
 	reg [2:0] clk_counter;
 
-	wire [2:0] curr_tag;
+	wire [18:0] curr_tag;
 	wire [10:0] curr_block;
 	wire [1:0] curr_byte;
 
-	assign {curr_tag, curr_block, curr_byte} = mem_addr[15:0];
+	assign {curr_tag, curr_block, curr_byte} = mem_addr;
 
 	always @(posedge clk or negedge reset) begin
 		// always reset these outputs
@@ -89,11 +89,11 @@ module Cache(
 							valid[curr_block] = 1; // we will have something valid here
 							if (dirty[curr_block]) begin // we have to write back
 								mem_write_en = 1; // only for one clock!
-								output_mem_addr = {16'b0, tag[curr_block], curr_block, 2'b0};
+								output_mem_addr = {tag[curr_block], curr_block, 2'b0};
 								clk_counter = 0;
 								state = state_write_back; // write back
 							end else begin
-								output_mem_addr = {16'b0, curr_tag, curr_block, 2'b0}; // load the word
+								output_mem_addr = {curr_tag, curr_block, 2'b0}; // load the word
 								clk_counter = 0;
 								state = state_load; // go to load
 							end
@@ -101,7 +101,7 @@ module Cache(
 					end
 					state_write_back: begin
 						if (clk_counter == 4) begin
-							output_mem_addr = {16'b0, curr_tag, curr_block, 2'b0}; // load the word
+							output_mem_addr = {curr_tag, curr_block, 2'b0}; // load the word
 							clk_counter = 0;
 							state = state_load;
 						end else
@@ -110,13 +110,14 @@ module Cache(
 					state_load: begin
 						if (clk_counter == 4) begin
 							cache_mem[curr_block] = {mem_data_out[0], mem_data_out[1], mem_data_out[2], mem_data_out[3]};
+							tag[curr_block] = curr_tag; // update the tag
 							state = state_start;
 							$display("cache set %h on %h as result", cache_mem[curr_block], curr_block);
 						end else
 							clk_counter++;
 						//$display("waiting for load %h (%h | %h)", {mem_data_out[0], mem_data_out[1], mem_data_out[2], mem_data_out[3]}, mem_addr, output_mem_addr);
 					end
-					state_ready: begin
+					state_ready: begin // in this state we just mark ready as 1 and move on to start
 						ready = 1;
 						state = state_start;
 					end
