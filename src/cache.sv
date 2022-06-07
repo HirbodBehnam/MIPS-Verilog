@@ -88,29 +88,33 @@ module Cache(
 						end else begin // miss :(
 							valid[curr_block] = 1; // we will have something valid here
 							if (dirty[curr_block]) begin // we have to write back
-								mem_write_en = 1; // only for one clock!
-								output_mem_addr = {tag[curr_block], curr_block, 2'b0};
+								output_mem_addr = {tag[curr_block], curr_block, 2'b0}; // set the address as tag itself
+								{data_out[0], data_out[1], data_out[2], data_out[3]} = cache_mem[curr_block]; // set data
+								$display("WRITE BACK %h on %h", {data_out[0], data_out[1], data_out[2], data_out[3]}, output_mem_addr);
 								clk_counter = 0;
 								state = state_write_back; // write back
 							end else begin
-								output_mem_addr = {curr_tag, curr_block, 2'b0}; // load the word
+								output_mem_addr = mem_addr; // load the word
 								clk_counter = 0;
 								state = state_load; // go to load
 							end
 						end
 					end
 					state_write_back: begin
-						if (clk_counter == 4) begin
-							output_mem_addr = {curr_tag, curr_block, 2'b0}; // load the word
+						if (clk_counter == 5) begin
+							output_mem_addr = mem_addr; // load the word
+							$display("starting to load %h", mem_addr);
 							clk_counter = 0;
 							state = state_load;
 						end else
 							clk_counter++;
+						mem_write_en = clk_counter == 1; // only for one clock!
 					end
 					state_load: begin
 						if (clk_counter == 4) begin
 							cache_mem[curr_block] = {mem_data_out[0], mem_data_out[1], mem_data_out[2], mem_data_out[3]};
 							tag[curr_block] = curr_tag; // update the tag
+							dirty[curr_block] = 0;
 							state = state_start;
 							$display("cache set %h on %h as result", cache_mem[curr_block], curr_block);
 						end else
