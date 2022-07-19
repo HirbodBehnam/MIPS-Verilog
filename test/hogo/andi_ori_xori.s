@@ -2,6 +2,11 @@
 main:   
 	
 	addi $s0,$zero,2793
+	nop
+	nop
+	nop
+	nop
+	nop
 	andi $s1,$s0,1151
 	
 	addi $s2,$zero,2793

@@ -9,9 +9,25 @@ main:
 
 
         addiu  $t2, $zero, 255
+        nop
+	nop
+	nop
+	nop
+	nop
         add    $t3, $t2, $t2
+	nop
+	nop
+	nop
+	nop
+	nop
         add    $t4, $t3, $t3
+	nop
+	nop
+	nop
+	nop
+	nop
         add    $t5, $t3, $t4
+        nop
         
         #;; Place a test pattern in memory
         sw $t2 , 0($t0) #miss to save

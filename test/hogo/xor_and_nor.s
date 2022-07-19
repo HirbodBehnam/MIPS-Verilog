@@ -4,7 +4,10 @@ main:
 	addi $t0,$zero,15
 	addi $t1,$zero,10
 	addi $t2,$zero,-16
-	
+	nop
+	nop
+	nop
+	nop
 	xor $s0,$t0,$t1
 	or $s1,$t0,$t2
 	nor $s2,$t0,$t1

@@ -3,6 +3,11 @@
 main:
 	addi $t0,$zero,12
 	addi $t1,$zero,15
+	nop
+	nop
+	nop
+	nop
+	nop
 	sub $t2,$t1,$t0
 	
 	addi $t1,$zero,-1

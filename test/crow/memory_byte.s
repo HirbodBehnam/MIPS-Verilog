@@ -3,15 +3,33 @@
 main:
         #;;  Set a base address
         lui $t0, 0x1000
+        nop
+        nop
+        nop
+        nop
+        nop
         ori $t0 ,0xE100
+        nop
+        nop
+        nop
+        nop
+        nop
         lui $t1, 0x1000
+        nop
+        nop
+        nop
+        nop
+        nop
         ori $t1 ,0x6100
-
+        nop
 
         addi  $t2, $zero, 0x7d
         addi  $t3, $zero, 0x10 # test -16
         addi  $t4, $zero, 0x1b
         addi  $t5, $zero, 0x45
+
+        nop
+        nop
         
         #;; Place a test pattern in memory
         

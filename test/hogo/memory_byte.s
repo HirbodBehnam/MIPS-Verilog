@@ -10,6 +10,9 @@ main:
         addi  $t3, $zero, 0x10 # test -16
         addi  $t4, $zero, 0x1b
         addi  $t5, $zero, 0x45
+        nop
+        nop
+        nop
         
         #;; Place a test pattern in memory
         

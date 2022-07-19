@@ -1,4 +1,4 @@
-        # Basic LW/SW test
+        # Basic LB/SB test
 	.text
 main:
         #;;  Set a base address
@@ -8,6 +8,7 @@ main:
         addi  $t3, $zero, 0xa3 # test -16
         addi  $t4, $zero, 0x62
         addi  $t5, $zero, 0x85
+        nop
         
         #;; Place a test pattern in memory
         

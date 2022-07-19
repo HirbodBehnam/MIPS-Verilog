@@ -8,6 +8,8 @@ main:
         addiu  $6, $zero, 0x2
         addiu  $7, $zero, 0x22F
         addiu  $8, $zero, 0x2F
+
+        nop # One is good I think
         
         #;; Place a test pattern in memory
         sb     $5, 0($3)

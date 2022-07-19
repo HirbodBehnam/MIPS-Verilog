@@ -3,9 +3,17 @@
 main:
 	addi $t0,$zero,10
 	addi $t1,$zero,5
+	nop
+	nop
+	nop
+	nop
 	sub $t2,$t0,$t1
 	addi $t3,$zero,5
-	
+	nop
+	nop
+	nop
+	nop
+	nop
 	beq $t2,$t3,finish
 	
 	addi $v0,$zero,10

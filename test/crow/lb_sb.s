@@ -3,8 +3,23 @@
 main:
         #;;  Set a base address
         lui $t0, 0x1000
+        nop
+        nop
+        nop
+        nop
+        nop
         ori $t0 ,0xE100
+        nop
+        nop
+        nop
+        nop
+        nop
         lui $t1, 0x1000
+        nop
+        nop
+        nop
+        nop
+        nop
         ori $t1 ,0x6100
 
 
@@ -13,6 +28,7 @@ main:
         addi  $t4, $zero, 0x62
         addi  $t5, $zero, 0x85
         
+        nop # One no-op is fine i guess?
         #;; Place a test pattern in memory
         
         sb $t2 , 0($t0) #hit to save
