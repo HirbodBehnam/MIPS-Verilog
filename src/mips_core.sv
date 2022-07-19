@@ -120,19 +120,25 @@ reg idex_halted ;
 reg exmem_halted;
 reg memwb_halted;
 reg wb_halted;
+reg idex_link;
+reg exmem_link;
+reg memwb_link;
+reg wb_link;
+reg[31:0] memwb_instruction;
+reg[31:0] wb_instruction;
 //instantiation
 ALU al(.opt(c_ALUOp),
-	.a(r_read1),
+	.a(idex_readdata),
 	.b(a_b),
-	.shamt(inst[10:6]),
+	.shamt(idex_instruction[10:6]),
 	.out(a_out),
 	.zero(a_z),
 	.negative(a_n),
 	.carry(a_c)
 );
 
-CU ct(.opcode(inst[31:26]),
-	.func(inst[5:0]),
+CU ct(.opcode(ifid_instruction[31:26]),
+	.func(ifid_instruction[5:0]),
 	.RegDest(c_RegDst),
 	.Jump(c_Jump),
 	.Branch(c_Branch),
@@ -150,8 +156,8 @@ CU ct(.opcode(inst[31:26]),
 	.MemByte(c_MemByte)
 );
 
-regfile rr(.rs_num(inst[25:21]),
-	.rt_num(inst[20:16]),
+regfile rr(.rs_num(ifid_instruction[25:21]),
+	.rt_num(ifid_instruction[20:16]),
 	.rd_num(wb_writeregister),
 	.rd_data(r_writedata),
 	.rd_we(c_regWrite),
@@ -166,7 +172,7 @@ regfile rr(.rs_num(inst[25:21]),
 //	$display("%d <- %d o %d | %d", r_writereg1, inst[25:21], inst[20:16], r_writedata);
 
 
-sign_extend s1(inst[15:0], ext_15_0, c_SignExtend);
+sign_extend s1(ifid_instruction[15:0], ext_15_0, c_SignExtend);
 
 adder a1(.res(rs3),
 	.a(rs1),
@@ -237,8 +243,8 @@ always @(posedge clk or negedge rst_b) begin
 			exmem_pc <= idex_pc;
 			exmem_memread <= idex_memread;
 			exmem_membyte <= idex_membyte;
- 			exmem_zero <= zero;
-			exmem_result <= result ;
+ 			exmem_zero <= a_z;
+			exmem_result <= a_out ;
 			exmem_immediate <= idex_readdata2;
 			exmem_writeregister <= idex_writeregister;
 			exmem_instruction <= idex_instruction;
@@ -259,6 +265,13 @@ always @(posedge clk or negedge rst_b) begin
 			exmem_halted <= idex_halted;
 			memwb_halted <= exmem_halted;
 			wb_halted <= memwb_halted;
+			idex_link <= c_Link;
+			exmem_link <= idex_link;
+			memwb_link <= exmem_link;
+			wb_link <= memwb_link;
+			exmem_instruction <= idex_instruction;
+			memwb_instruction <= exmem_instruction;
+			wb_instruction <= memwb_instruction;
 		end
 	end
 end
