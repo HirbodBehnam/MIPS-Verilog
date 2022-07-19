@@ -50,7 +50,7 @@ wire c_JumpReg;
 wire c_PcOrMem;
 wire c_SignExtend;
 wire c_MemByte;
-
+wire c_halted;
 //regfile wires
 wire [4:0] r_writereg1;
 wire [4:0] r_writereg2;
@@ -74,9 +74,52 @@ assign mem_data_in = cache_data_out;
 wire [7:0] cache_data_in [0:3];
 assign {cache_data_in[0], cache_data_in[1], cache_data_in[2], cache_data_in[3]} = r_read2;
 wire cache_enable = c_MemRead | c_MemWrite;
-wire load_next_instruction = ~(c_MemRead | c_MemWrite) | cache_ready;
-
-
+wire stall = ~(c_MemRead | c_MemWrite) | cache_ready;
+//pipeline registers
+reg[31:0] ifid_instruction;
+reg[31:0] ifid_pcp4 ;
+reg[31:0] idex_readdata ;
+reg[4:0] idex_writeregister;
+reg[31:0] idex_readdata2 ;
+reg[31:0] idex_signextend ; 
+reg idex_cjump ;
+reg idex_cbranch ;
+reg idex_cmemtoreg ;
+reg[5:0] idex_aluop ;
+reg idex_regwrite ;
+reg idex_memread ;
+reg idex_membyte ;
+reg[31:0] idex_pc ;
+reg[31:0] idex_instruction ;
+reg[4:0] exmem_writeregister ;
+reg exmem_regwrite ;
+reg exmem_cjump ;
+reg exmem_cbranch ;
+reg exmem_memtoreg ;
+reg[31:0] exmem_pc ;
+reg exmem_memread ;
+reg exmem_membyte ;
+reg exmem_zero ;
+reg[31:0] exmem_result ;
+reg[31:0] exmem_instruction;
+reg[31:0] exmem_immediate;
+reg[4:0] memwb_writeregister;
+reg[31:0] memwb_readdata ;
+reg memwb_regwrite ;
+reg memwb_cjump ;
+reg memwb_cbranch ;
+reg memwb_memtoreg ;
+reg memwb_memwrite ;
+reg memwb_memread ;
+reg memwb_membyte ;
+reg[4:0] wb_writeregister ;
+reg wb_regwrite ;
+reg wb_memtoreg ;
+reg[31:0] wb_readdata ;
+reg idex_halted ;
+reg exmem_halted;
+reg memwb_halted;
+reg wb_halted;
 //instantiation
 ALU al(.opt(c_ALUOp),
 	.a(r_read1),
@@ -101,7 +144,7 @@ CU ct(.opcode(inst[31:26]),
 	.RegWrite(c_regWrite),
 	.Link(c_Link),
 	.MemRead(c_MemRead),
-	.Halted(halted),
+	.Halted(c_halted),
 	.rst_b(rst_b),
 	.SignExtend(c_SignExtend),
 	.MemByte(c_MemByte)
@@ -109,7 +152,7 @@ CU ct(.opcode(inst[31:26]),
 
 regfile rr(.rs_num(inst[25:21]),
 	.rt_num(inst[20:16]),
-	.rd_num(r_writereg1),
+	.rd_num(wb_writeregister),
 	.rd_data(r_writedata),
 	.rd_we(c_regWrite),
 	.clk(clk),
@@ -145,7 +188,7 @@ Cache cache(
 	.ready(cache_ready) // ready to fetch the next instruction
 );
 
-//data flow
+//data flow  
 
 assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31;
 
@@ -158,10 +201,9 @@ assign rs2 = {rs1[31:28],rs4};
 
 assign rs4 = inst[27:0] <<2;
 assign rs5 = ext_15_0<<2;
-
+assign halted = wb_halted ;
 
 assign inst_addr_load = c_JumpReg ? r_read1 : ( c_Jump ? rs2 : ( (c_Branch & a_z) ? rs3 : rs1) );
-
 
 // behavioral
 always @(posedge clk or negedge rst_b) begin
@@ -169,9 +211,55 @@ always @(posedge clk or negedge rst_b) begin
 		inst_addr <= -4;
 		//$display("RESET");
 	end else begin
-		if (load_next_instruction)
-			inst_addr <= inst_addr_load;
+		if (!stall)
 		//$display("got %b on %d", inst, inst_addr / 4);
+		begin
+			inst_addr <= inst_addr_load;
+			ifid_instruction <= inst;
+			ifid_pcp4 <= rs1;
+			idex_readdata <= r_read1;
+			idex_readdata2 <= r_read2;
+			idex_signextend <= ext_15_0; 
+			idex_cjump <= c_Jump;
+			idex_cbranch <= c_Branch;
+			idex_cmemtoreg <= c_MemToReg;
+			idex_aluop <= c_ALUOp;
+			idex_regwrite <= c_regWrite;
+			idex_memread <= c_MemRead; 
+			idex_membyte <= c_MemByte;
+			idex_pc <= ifid_pcp4;
+			idex_writeregister <= r_writereg1;
+			idex_instruction <= ifid_instruction;
+			exmem_regwrite <= idex_regwrite;
+			exmem_cjump <= idex_cjump;
+			exmem_cbranch <= idex_cbranch;
+			exmem_memtoreg <= idex_cmemtoreg;
+			exmem_pc <= idex_pc;
+			exmem_memread <= idex_memread;
+			exmem_membyte <= idex_membyte;
+ 			exmem_zero <= zero;
+			exmem_result <= result ;
+			exmem_immediate <= idex_readdata2;
+			exmem_writeregister <= idex_writeregister;
+			exmem_instruction <= idex_instruction;
+			memwb_readdata <= cache_data_out;
+			memwb_regwrite <= exmem_regwrite;
+			memwb_cjump <= exmem_cjump;
+			memwb_cbranch <= exmem_cbranch;
+			memwb_memtoreg <= exmem_cmemtoreg;
+			memwb_memwrite <= c_MemWrite;
+			memwb_memread <= exmem_memread;
+			memwb_membyte <= exmem_membyte;
+			memwb_writeregister <= exmem_writeregister;
+			wb_regwrite <= memwb_regwrite;
+			wb_memtoreg <= memwb_memtoreg;
+			wb_readdata <= memwb_readdata;
+			wb_writeregister <= memwb_writeregister;
+			idex_halted <= c_halted;
+			exmem_halted <= idex_halted;
+			memwb_halted <= exmem_halted;
+			wb_halted <= memwb_halted;
+		end
 	end
 end
 
