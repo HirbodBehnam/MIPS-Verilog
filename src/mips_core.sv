@@ -26,9 +26,9 @@ output  [7:0]  mem_data_in[0:3];
 output         mem_write_en;
 output         halted;
 
-//internal wires
+// internal wires
 
-//alu wires
+// alu wires
 wire [31:0] a_immidate_or_reg_data;
 wire [31:0] a_out;
 wire a_z;
@@ -51,15 +51,14 @@ wire c_PcOrMem;
 wire c_SignExtend;
 wire c_MemByte;
 wire c_halted;
-//regfile wires
+// regfile wires
 wire [4:0] r_writereg1;
 wire [4:0] r_writereg2;
 wire [31:0] r_writedata;
 wire [31:0] r_read1;
 wire [31:0] r_read2;
 
-//misc
-wire [31:0] write_buffer;
+// misc
 wire [31:0] ext_15_0;
 wire [31:0] inst_addr_load;
 // cache control and multi cycle
@@ -70,7 +69,7 @@ wire [7:0] cache_data_in [0:3];
 assign {cache_data_in[0], cache_data_in[1], cache_data_in[2], cache_data_in[3]} = exmem_register_data_2;
 wire cache_enable = exmem_memread | exmem_memwrite; // Enable cache if there is a read or write
 wire stall = cache_enable & (~cache_ready); // Stall if we are reading from memory and the data is not ready
-//pipeline registers
+// pipeline registers
 reg[31:0] ifid_instruction;
 reg[31:0] ifid_pcp4;
 reg[31:0] idex_register_data_1;
@@ -119,6 +118,7 @@ reg memwb_halted;
 reg memwb_link;
 
 // Flush macro
+// If flush all is true, it will flust MEM/WB as well
 `define FLUSH_PIPELINE(FLUSH_ALL) \
 	ifid_instruction <= 0; \
 	ifid_pcp4 <= 0; \
@@ -252,7 +252,7 @@ assign inst_addr_load = exmem_cjump_reg ? // jr
 						exmem_register_data_1 :
 						(
 							exmem_cjump ? // j and jal
-							{exmem_pc[31:28], exmem_instruction[27:0] << 2} :
+							{exmem_pc[31:28], exmem_instruction[25:0], 2'b00} :
 							(
 								(exmem_cbranch & exmem_zero) ? // branch
 								exmem_pc + (exmem_signextend << 2) :
@@ -268,11 +268,10 @@ always @(posedge clk or negedge rst_b) begin
 	if (rst_b == 0) begin
 		inst_addr <= -4;
 		`FLUSH_PIPELINE(1);
-		//$display("RESET");
+		$display("RESET");
 	end else begin
 		if (!stall) begin
-			$display("got %b on %d", inst, inst_addr / 4);
-			$display("%d %d %d %d", c_halted, idex_halted, exmem_halted, memwb_halted);
+			//$display("got %b on %d", inst, inst_addr / 4);
 			// Load the next struction address
 			inst_addr <= inst_addr_load;
 			if (flush_pipeline) begin
