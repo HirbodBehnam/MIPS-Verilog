@@ -185,7 +185,7 @@ Cache cache(
 
 //data flow  
 
-assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31; // Done in register file stage
+assign r_writereg1 = c_Link ? (c_RegDst ? ifid_instruction[15:11] : ifid_instruction[20:16]) : 5'd31; // Done in register file stage
 
 assign r_writedata = memwb_link ?
 					(memwb_memtoreg ? memwb_memory_read_data : memwb_alu_result)
