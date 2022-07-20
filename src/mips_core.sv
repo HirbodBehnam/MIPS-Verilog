@@ -75,7 +75,7 @@ reg[31:0] ifid_instruction;
 reg[31:0] ifid_pcp4;
 reg[31:0] idex_register_data_1;
 reg[31:0] idex_register_data_2;
-reg[4:0] idex_writeregister;
+reg[4:0]  idex_writeregister;
 reg[31:0] idex_signextend; 
 reg idex_cjump;
 reg idex_cjump_reg;
@@ -91,7 +91,7 @@ reg idex_link;
 reg idex_halted;
 reg[31:0] idex_pc;
 reg[31:0] idex_instruction;
-reg[4:0] exmem_writeregister;
+reg[4:0]  exmem_writeregister;
 reg exmem_regwrite;
 reg exmem_cjump;
 reg exmem_cjump_reg;
@@ -106,9 +106,10 @@ reg[31:0] exmem_register_data_1;
 reg[31:0] exmem_register_data_2;
 reg[31:0] exmem_alu_result;
 reg[31:0] exmem_instruction;
+reg[31:0] exmem_signextend;
 reg exmem_link;
 reg exmem_halted;
-reg[4:0] memwb_writeregister;
+reg[4:0]  memwb_writeregister;
 reg[31:0] memwb_memory_read_data;
 reg[31:0] memwb_pc;
 reg memwb_regwrite;
@@ -116,6 +117,58 @@ reg memwb_memtoreg;
 reg[31:0] memwb_alu_result;
 reg memwb_halted;
 reg memwb_link;
+
+// Flush macro
+`define FLUSH_PIPELINE(FLUSH_ALL) \
+	ifid_instruction <= 0; \
+	ifid_pcp4 <= 0; \
+	idex_register_data_1 <= 0; \
+	idex_register_data_2 <= 0; \
+	idex_writeregister <= 0; \
+	idex_signextend <= 0; \
+	idex_cjump <= 0; \
+	idex_cjump_reg <= 0; \
+	idex_cbranch <= 0; \
+	idex_cmemtoreg <= 0; \
+	idex_aluop <= 0; \
+	idex_regwrite <= 0; \
+	idex_memread <= 0; \
+	idex_membyte <= 0; \
+	idex_memwrite <= 0; \
+	idex_ALU_src <= 0; \
+	idex_link <= 0; \
+	idex_halted <= 0; \
+	idex_pc <= 0; \
+	idex_instruction <= 0; \
+	exmem_writeregister <= 0; \
+	exmem_regwrite <= 0; \
+	exmem_cjump <= 0; \
+	exmem_cjump_reg <= 0; \
+	exmem_cbranch <= 0; \
+	exmem_memtoreg <= 0; \
+	exmem_pc <= 0; \
+	exmem_memread <= 0; \
+	exmem_membyte <= 0; \
+	exmem_memwrite <= 0; \
+	exmem_zero <= 0; \
+	exmem_register_data_1 <= 0; \
+	exmem_register_data_2 <= 0; \
+	exmem_alu_result <= 0; \
+	exmem_instruction <= 0; \
+	exmem_signextend <= 0; \
+	exmem_link <= 0; \
+	exmem_halted <= 0; \
+	if (FLUSH_ALL) begin \
+		memwb_writeregister <= 0; \
+		memwb_memory_read_data <= 0; \
+		memwb_pc <= 0; \
+		memwb_regwrite <= 0; \
+		memwb_memtoreg <= 0; \
+		memwb_alu_result <= 0; \
+		memwb_halted <= 0; \
+		memwb_link <= 0; \
+	end
+	
 
 //instantiation
 ALU al(
@@ -185,11 +238,10 @@ Cache cache(
 
 //data flow  
 
-assign r_writereg1 = c_Link ? (c_RegDst ? ifid_instruction[15:11] : ifid_instruction[20:16]) : 5'd31; // Done in register file stage
+assign r_writereg1 = c_Link ? 5'd31 : (c_RegDst ? ifid_instruction[15:11] : ifid_instruction[20:16]); // Done in register file stage
 
-assign r_writedata = memwb_link ?
-					(memwb_memtoreg ? memwb_memory_read_data : memwb_alu_result)
-					: memwb_pc; // Done in write back
+assign r_writedata = memwb_link ? memwb_pc
+					: (memwb_memtoreg ? memwb_memory_read_data : memwb_alu_result); // Done in write back
 
 assign a_immidate_or_reg_data = idex_ALU_src ? idex_signextend : idex_register_data_2;
 
@@ -203,63 +255,72 @@ assign inst_addr_load = exmem_cjump_reg ? // jr
 							{exmem_pc[31:28], exmem_instruction[27:0] << 2} :
 							(
 								(exmem_cbranch & exmem_zero) ? // branch
-								exmem_pc + (ext_15_0 << 2) :
+								exmem_pc + (exmem_signextend << 2) :
 								// Note to myself: We are always running this in each block.
 								// So this must get the current pc counter
 								inst_addr + 4
 							)
 						);
+wire flush_pipeline = exmem_cjump_reg | exmem_cjump | (exmem_cbranch & exmem_zero);
 
 // behavioral
 always @(posedge clk or negedge rst_b) begin
 	if (rst_b == 0) begin
 		inst_addr <= -4;
+		`FLUSH_PIPELINE(1);
 		//$display("RESET");
 	end else begin
 		if (!stall) begin
-			//$display("got %b on %d", inst, inst_addr / 4);
+			$display("got %b on %d", inst, inst_addr / 4);
+			$display("%d %d %d %d", c_halted, idex_halted, exmem_halted, memwb_halted);
 			// Load the next struction address
 			inst_addr <= inst_addr_load;
-			// Instruction fetch. Only instruction and pc + 4 are needed
-			ifid_instruction <= inst;
-			ifid_pcp4 <= inst_addr + 4;
-			// After register file. Includes the registers and control unit signals
-			idex_register_data_1 <= r_read1; // First register output
-			idex_register_data_2 <= r_read2; // Second register output
-			idex_signextend <= ext_15_0; // Sign extend result
-			idex_cjump <= c_Jump; // Is this jump? Will be needed until Mem
-			idex_cjump_reg <= c_JumpReg; // Enabled on jal instruction. Will be used in mem
-			idex_cbranch <= c_Branch; // Is this branch? Will be needed until Mem
-			idex_cmemtoreg <= c_MemToReg; // Should we write the memory data into registers? Goes until end
-			idex_aluop <= c_ALUOp; // ALU operation. Goes until execute
-			idex_regwrite <= c_regWrite; // Write enable of register file. Goes until very end
-			idex_memread <= c_MemRead; // Should we read from memory? Goes until memory
-			idex_membyte <= c_MemByte; // Is this a byte read? Goes unitl memory
-			idex_memwrite <= c_MemWrite; // Should we write to memory? Goes until memory
-			idex_ALU_src <= c_ALUsrc; // Should ALU use the immidate or the register?
-			idex_pc <= ifid_pcp4; // From last step. The PC + 4
-			idex_writeregister <= r_writereg1; // The register number which data should be written to. Goes until end
-			idex_instruction <= ifid_instruction; // The instruction itself
-			idex_halted <= c_halted; // We must halt after we have written to registers
-			idex_link <= c_Link; // True if we want to jal. Goes until memory
-			// After Execute (ALU)
-			exmem_regwrite <= idex_regwrite; // The write enable which must go until end
-			exmem_cjump <= idex_cjump; // Should we jump? This is the last one
-			exmem_cbranch <= idex_cbranch; // Should we branch if needed? This is the last step
-			exmem_memtoreg <= idex_cmemtoreg; // Should we write memory into registers? Goes until next stage
-			exmem_cjump_reg <= idex_cjump_reg; // Should we jump to register? (jr)
-			exmem_pc <= idex_pc; // The program counter of the command which is being executed
-			exmem_memread <= idex_memread; // Should we read from memory?
-			exmem_membyte <= idex_membyte; // Should we read/write byte?
-			exmem_memwrite <= idex_memwrite; // Should we write to memory?
-			exmem_register_data_1 <= idex_register_data_1; // Needed for jr in next 
-			exmem_register_data_2 <= idex_register_data_2; // Needed for data to be written to memory
- 			exmem_zero <= a_z; // Is the alu result zero?
-			exmem_alu_result <= a_out; // The result of alu
-			exmem_link <= idex_link; // Link used in jal
-			exmem_writeregister <= idex_writeregister; // Number of register to write in
-			exmem_instruction <= idex_instruction; // The instruction itself
-			exmem_halted <= idex_halted; // Halt at last
+			if (flush_pipeline) begin
+				`FLUSH_PIPELINE(0);
+				$display("PIPELINE FLUSHED");
+			end else begin
+				// Instruction fetch. Only instruction and pc + 4 are needed
+				ifid_instruction <= inst;
+				ifid_pcp4 <= inst_addr + 4;
+				// After register file. Includes the registers and control unit signals
+				idex_register_data_1 <= r_read1; // First register output
+				idex_register_data_2 <= r_read2; // Second register output
+				idex_signextend <= ext_15_0; // Sign extend result
+				idex_cjump <= c_Jump; // Is this jump? Will be needed until Mem
+				idex_cjump_reg <= c_JumpReg; // Enabled on jal instruction. Will be used in mem
+				idex_cbranch <= c_Branch; // Is this branch? Will be needed until Mem
+				idex_cmemtoreg <= c_MemToReg; // Should we write the memory data into registers? Goes until end
+				idex_aluop <= c_ALUOp; // ALU operation. Goes until execute
+				idex_regwrite <= c_regWrite; // Write enable of register file. Goes until very end
+				idex_memread <= c_MemRead; // Should we read from memory? Goes until memory
+				idex_membyte <= c_MemByte; // Is this a byte read? Goes unitl memory
+				idex_memwrite <= c_MemWrite; // Should we write to memory? Goes until memory
+				idex_ALU_src <= c_ALUsrc; // Should ALU use the immidate or the register?
+				idex_pc <= ifid_pcp4; // From last step. The PC + 4
+				idex_writeregister <= r_writereg1; // The register number which data should be written to. Goes until end
+				idex_instruction <= ifid_instruction; // The instruction itself
+				idex_halted <= c_halted; // We must halt after we have written to registers
+				idex_link <= c_Link; // True if we want to jal. Goes until memory
+				// After Execute (ALU)
+				exmem_regwrite <= idex_regwrite; // The write enable which must go until end
+				exmem_cjump <= idex_cjump; // Should we jump? This is the last one
+				exmem_cbranch <= idex_cbranch; // Should we branch if needed? This is the last step
+				exmem_memtoreg <= idex_cmemtoreg; // Should we write memory into registers? Goes until next stage
+				exmem_cjump_reg <= idex_cjump_reg; // Should we jump to register? (jr)
+				exmem_pc <= idex_pc; // The program counter of the command which is being executed
+				exmem_memread <= idex_memread; // Should we read from memory?
+				exmem_membyte <= idex_membyte; // Should we read/write byte?
+				exmem_memwrite <= idex_memwrite; // Should we write to memory?
+				exmem_register_data_1 <= idex_register_data_1; // Needed for jr in next 
+				exmem_register_data_2 <= idex_register_data_2; // Needed for data to be written to memory
+ 				exmem_zero <= a_z; // Is the alu result zero?
+				exmem_alu_result <= a_out; // The result of alu
+				exmem_link <= idex_link; // Link used in jal
+				exmem_writeregister <= idex_writeregister; // Number of register to write in
+				exmem_instruction <= idex_instruction; // The instruction itself
+				exmem_halted <= idex_halted; // Halt at last
+				exmem_signextend <= idex_signextend; // Used for jump
+			end
 			// Memory phase (last one)
 			memwb_memory_read_data <= {cache_data_out[0], cache_data_out[1], cache_data_out[2], cache_data_out[3]}; // Mem out
 			memwb_regwrite <= exmem_regwrite; // Write enable of register file
@@ -269,9 +330,10 @@ always @(posedge clk or negedge rst_b) begin
 			memwb_memtoreg <= exmem_memtoreg; // Should memory data go to register or alu
 			memwb_halted <= exmem_halted; // Halt the system if needed
 			memwb_link <= exmem_link; // If link is true the pc will go to register
+		end else begin
+			$display("STALLED!");
 		end
 	end
 end
 
 endmodule
-// TODO: fix link

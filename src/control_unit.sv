@@ -10,7 +10,7 @@ module CU(
     output reg JumpReg, // ok
     output reg Branch, // ok
     output reg MemToReg, // ok
-    output reg Link, // ok
+    output wire Link, // ok
     output reg [4:0] ALUOp, // ok
     output reg MemWrite, // ok
     output reg ALUsrc, // ok 
@@ -20,9 +20,11 @@ module CU(
     output reg SignExtend,
     output reg MemByte
 );
+    reg NotLink;
+    assign Link = ~NotLink;
 
     always @(*) begin
-    {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, Link, SignExtend, MemByte} = 0;
+    {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, NotLink, SignExtend, MemByte, Halted} = 0;
 	if(~rst_b)
 	begin
 		Halted = 0;
@@ -34,67 +36,67 @@ module CU(
         `R_TYPE: begin
             case (func)
                 `XOR:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_XOR;
                     end
                 `SLL:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_UNSIGNED_SHIFT_LEFT_SH_AMOUNT;
                     end
                 `SLLV:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_UNSIGNED_SHIFT_LEFT;
                     end
                 `SRL:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_UNSIGNED_SHIFT_RIGHT_SH_AMOUNT;
                     end
                 `SUB:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_SUB;
                     end
                 `SRLV:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_UNSIGNED_SHIFT_RIGHT;
                     end
                 `SLT:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_COMP_LT;
                     end
                 `SUBU:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_SUB;
                     end
                 `OR:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_OR;
                     end
                 `NOR:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_NOR;
                     end
                 `ADDU:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_ADD;
                     end
                 `MULT:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_MULT;
                     end
                 `DIV:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_DIV;
                     end
                 `AND:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_AND;
                     end
                 `ADD:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_ADD;
                     end
                 `SRA:begin
-                    {RegDest,Link,RegWrite}=3'b111;
+                    {RegDest,NotLink,RegWrite}=3'b111;
                     {ALUOp} = `ALU_SIGNED_SHIFT_RIGHT_SH_AMOUNT;
                     end
                 `JR:begin
@@ -124,28 +126,28 @@ module CU(
         default:
             case (opcode)
                 `ADDi: begin
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_ADD;
 		            SignExtend = 1;
                 end
 
                 `ADDiu: begin // similar to 'ADDi' in control signals
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_ADD;
                 end
 
                 `ANDi: begin	// DO NOT EXTEND SIGN
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_AND;
                 end
 
                 `XORi: begin 	// DO NOT EXTEND SIGN
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_XOR;
                 end
 
                 `ORi: begin	// DO NOT EXTEND SIGN
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_OR;
 		      
                 end
@@ -175,7 +177,7 @@ module CU(
                 end
 
                 `LW: begin
-                    {ALUsrc, Link, RegWrite, MemRead, MemToReg} = 5'b11111;
+                    {ALUsrc, NotLink, RegWrite, MemRead, MemToReg} = 5'b11111;
                     {ALUOp} = `ALU_ADD;
 		            SignExtend = 1;
                 end
@@ -187,7 +189,7 @@ module CU(
                 end
 
                 `LB: begin
-                    {ALUsrc, Link, RegWrite, MemRead, MemToReg, MemByte} = 6'b111111;
+                    {ALUsrc, NotLink, RegWrite, MemRead, MemToReg, MemByte} = 6'b111111;
                     {ALUOp} = `ALU_ADD;
 		            SignExtend = 1;
                 end
@@ -199,13 +201,13 @@ module CU(
                 end
 
                 `SLTi: begin
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_COMP_LT;
 		            SignExtend = 1;
                 end
 
                 `LUI: begin
-                    {ALUsrc, Link, RegWrite} = 3'b111;
+                    {ALUsrc, NotLink, RegWrite} = 3'b111;
                     {ALUOp} = `ALU_LUI;
                     SignExtend = 1;
                 end

@@ -11,6 +11,10 @@ main:
 	sub $t2,$t1,$t0
 	
 	addi $t1,$zero,-1
+	nop
+	nop
+	nop
+	nop
 	subu $t3,$t1,$t0
 	
 	addi $v0,$zero,10

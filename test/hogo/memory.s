@@ -39,6 +39,11 @@ main:
         
 
         #;; Calculate a "checksum" for easy comparison
+        nop
+        nop
+        nop
+        nop
+        nop
         add    $s0, $t7, $t8
         
         #;;  Quit out 

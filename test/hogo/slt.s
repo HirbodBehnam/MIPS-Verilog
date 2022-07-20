@@ -14,6 +14,10 @@ main:
         slti $t6,$t0,2
         slti $t7,$t0,10
         add $t1,$zero,$t0
+        nop
+        nop
+        nop
+        nop
         slt $t8,$t1,$t0
         slti $t9,$zero,0
         syscall
