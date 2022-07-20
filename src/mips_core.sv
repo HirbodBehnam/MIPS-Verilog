@@ -29,7 +29,7 @@ output         halted;
 //internal wires
 
 //alu wires
-wire [31:0] a_b;
+wire [31:0] a_immidate_or_reg_data;
 wire [31:0] a_out;
 wire a_z;
 wire a_n;
@@ -62,19 +62,14 @@ wire [31:0] r_read2;
 wire [31:0] write_buffer;
 wire [31:0] ext_15_0;
 wire [31:0] inst_addr_load;
-wire [31:0] rs1;
-wire [31:0] rs2; // jump address
-wire [31:0] rs3;
-wire [27:0] rs4;
-wire [31:0] rs5;
 // cache control and multi cycle
 wire cache_ready;
 wire [7:0] cache_data_out [0:3];
 assign mem_data_in = cache_data_out;
 wire [7:0] cache_data_in [0:3];
-assign {cache_data_in[0], cache_data_in[1], cache_data_in[2], cache_data_in[3]} = r_read2;
-wire cache_enable = c_MemRead | c_MemWrite;
-wire stall = ~(c_MemRead | c_MemWrite) | cache_ready;
+assign {cache_data_in[0], cache_data_in[1], cache_data_in[2], cache_data_in[3]} = exmem_readdata2;
+wire cache_enable = exmem_memread | exmem_memwrite; // Enable cache if there is a read or write
+wire stall = cache_enable & (~cache_ready); // Stall if we are reading from memory and the data is not ready
 //pipeline registers
 reg[31:0] ifid_instruction;
 reg[31:0] ifid_pcp4 ;
@@ -83,28 +78,36 @@ reg[4:0] idex_writeregister;
 reg[31:0] idex_readdata2 ;
 reg[31:0] idex_signextend ; 
 reg idex_cjump ;
+reg idex_cjump_reg; // TODO: connect
 reg idex_cbranch ;
 reg idex_cmemtoreg ;
-reg[5:0] idex_aluop ;
+reg[4:0] idex_aluop ;
 reg idex_regwrite ;
 reg idex_memread ;
 reg idex_membyte ;
+reg idex_memwrite; // TODO: connect
+reg idex_ALU_src; // TODO: connect
 reg[31:0] idex_pc ;
 reg[31:0] idex_instruction ;
 reg[4:0] exmem_writeregister ;
 reg exmem_regwrite ;
 reg exmem_cjump ;
+reg exmem_cjump_reg; // TODO: connect
 reg exmem_cbranch ;
 reg exmem_memtoreg ;
 reg[31:0] exmem_pc ;
 reg exmem_memread ;
 reg exmem_membyte ;
+reg exmem_memwrite; // TODO: connect
 reg exmem_zero ;
-reg[31:0] exmem_result ;
+reg[31:0] exmem_readdata2 ; // TODO: connect
+reg[31:0] exmem_alu_result ;
 reg[31:0] exmem_instruction;
 reg[31:0] exmem_immediate;
 reg[4:0] memwb_writeregister;
 reg[31:0] memwb_readdata ;
+reg[31:0] memwb_pc; // TODO: connect
+reg[31:0] memwb_first_register_data; // TODO: connect
 reg memwb_regwrite ;
 reg memwb_cjump ;
 reg memwb_cbranch ;
@@ -112,6 +115,7 @@ reg memwb_memtoreg ;
 reg memwb_memwrite ;
 reg memwb_memread ;
 reg memwb_membyte ;
+reg[31:0] memwb_alu_result ; // TODO: connect
 reg[4:0] wb_writeregister ;
 reg wb_regwrite ;
 reg wb_memtoreg ;
@@ -127,9 +131,10 @@ reg wb_link;
 reg[31:0] memwb_instruction;
 reg[31:0] wb_instruction;
 //instantiation
-ALU al(.opt(c_ALUOp),
+ALU al(
+	.opt(idex_aluop),
 	.a(idex_readdata),
-	.b(a_b),
+	.b(a_immidate_or_reg_data),
 	.shamt(idex_instruction[10:6]),
 	.out(a_out),
 	.zero(a_z),
@@ -137,7 +142,8 @@ ALU al(.opt(c_ALUOp),
 	.carry(a_c)
 );
 
-CU ct(.opcode(ifid_instruction[31:26]),
+CU ct(
+	.opcode(ifid_instruction[31:26]),
 	.func(ifid_instruction[5:0]),
 	.RegDest(c_RegDst),
 	.Jump(c_Jump),
@@ -156,11 +162,12 @@ CU ct(.opcode(ifid_instruction[31:26]),
 	.MemByte(c_MemByte)
 );
 
-regfile rr(.rs_num(ifid_instruction[25:21]),
+regfile rr(
+	.rs_num(ifid_instruction[25:21]),
 	.rt_num(ifid_instruction[20:16]),
-	.rd_num(wb_writeregister),
-	.rd_data(r_writedata),
-	.rd_we(c_regWrite),
+	.rd_num(memwb_writeregister),
+	.rd_data(r_writedata), // this one is a wire
+	.rd_we(memwb_regwrite),
 	.clk(clk),
 	.rst_b(rst_b),
 	.halted(halted),
@@ -174,19 +181,14 @@ regfile rr(.rs_num(ifid_instruction[25:21]),
 
 sign_extend s1(ifid_instruction[15:0], ext_15_0, c_SignExtend);
 
-adder a1(.res(rs3),
-	.a(rs1),
-	.b(rs5)
-);
-
 Cache cache(
 	.clk(clk),
 	.reset(rst_b),
-	.mem_addr(a_out), // memory address is conected to alu
+	.mem_addr(exmem_alu_result), // memory address is conected to alu
 	.data_in(cache_data_in), // connected to second register file output
 	.mem_data_out(mem_data_out), // connect to memory data output
-	.byte_mode(c_MemByte), // control unit says it
-	.write_enable(c_MemWrite), // same as above, control unit thing
+	.byte_mode(exmem_membyte), // control unit says it
+	.write_enable(exmem_memwrite), // same as above, control unit thing
 	.enable(cache_enable), // either we must be writing or reading memory
 	.data_out(cache_data_out), // can be either memory write data or memory read data
 	.output_mem_addr(mem_addr), // is here for write or read of other words in block
@@ -196,20 +198,30 @@ Cache cache(
 
 //data flow  
 
-assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31;
+assign r_writereg1 = c_Link ? (c_RegDst ? inst[15:11] : inst[20:16]) : 5'd31; // Done in register file stage
 
-assign r_writedata = c_Link ? (c_MemToReg ? {cache_data_out[0], cache_data_out[1], cache_data_out[2], cache_data_out[3]} : a_out) : rs1;
+assign r_writedata = memwb_link ?
+					(memwb_memtoreg ? memwb_readdata : memwb_alu_result)
+					: memwb_pc; // Done in write back
 
-assign a_b = c_ALUsrc ? ext_15_0 : r_read2;
+assign a_immidate_or_reg_data = idex_ALU_src ? idex_signextend : idex_readdata2;
 
-assign rs1 = inst_addr + 4;
-assign rs2 = {rs1[31:28],rs4};
+assign halted = wb_halted;
 
-assign rs4 = inst[27:0] <<2;
-assign rs5 = ext_15_0<<2;
-assign halted = wb_halted ;
-
-assign inst_addr_load = c_JumpReg ? r_read1 : ( c_Jump ? rs2 : ( (c_Branch & a_z) ? rs3 : rs1) );
+// All of this must be done in mem phase
+assign inst_addr_load = exmem_cjump_reg ? // jr
+						memwb_first_register_data :
+						(
+							exmem_cjump ? // j
+							{exmem_pc[31:28], exmem_instruction[27:0] << 2} :
+							(
+								(c_Branch & a_z) ? // branch
+								exmem_pc + (ext_15_0 << 2) :
+								// Note to myself: We are always running this in each block.
+								// So this must get the current pc counter
+								inst_addr + 4
+							)
+						);
 
 // behavioral
 always @(posedge clk or negedge rst_b) begin
@@ -217,25 +229,28 @@ always @(posedge clk or negedge rst_b) begin
 		inst_addr <= -4;
 		//$display("RESET");
 	end else begin
-		if (!stall)
-		//$display("got %b on %d", inst, inst_addr / 4);
-		begin
+		if (!stall) begin
+			//$display("got %b on %d", inst, inst_addr / 4);
+			// Load the next struction address
 			inst_addr <= inst_addr_load;
+			// Instruction fetch. Only instruction and pc + 4 are needed
 			ifid_instruction <= inst;
-			ifid_pcp4 <= rs1;
-			idex_readdata <= r_read1;
-			idex_readdata2 <= r_read2;
-			idex_signextend <= ext_15_0; 
-			idex_cjump <= c_Jump;
-			idex_cbranch <= c_Branch;
-			idex_cmemtoreg <= c_MemToReg;
-			idex_aluop <= c_ALUOp;
-			idex_regwrite <= c_regWrite;
-			idex_memread <= c_MemRead; 
-			idex_membyte <= c_MemByte;
-			idex_pc <= ifid_pcp4;
-			idex_writeregister <= r_writereg1;
-			idex_instruction <= ifid_instruction;
+			ifid_pcp4 <= inst_addr + 4;
+			// After register file. Includes the registers and control unit signals
+			idex_readdata <= r_read1; // First register output
+			idex_readdata2 <= r_read2; // Second register output
+			idex_signextend <= ext_15_0; // Sign extend result
+			idex_cjump <= c_Jump; // Is this jump? Will be needed until Mem
+			idex_cbranch <= c_Branch; // Is this branch? Will be needed until Mem
+			idex_cmemtoreg <= c_MemToReg; // Should we write the memory data into registers? Goes until end
+			idex_aluop <= c_ALUOp; // ALU operation. Goes until execute
+			idex_regwrite <= c_regWrite; // Write enable of register file. Goes until very end
+			idex_memread <= c_MemRead; // Should we read from memory? Goes until memory
+			idex_membyte <= c_MemByte; // Is this a byte read? Goes unitl memory
+			idex_pc <= ifid_pcp4; // From last step. The PC + 4
+			idex_writeregister <= r_writereg1; // The register number which data should be written to. Goes until end
+			idex_instruction <= ifid_instruction; // The instruction itself
+			// After Execute (ALU)
 			exmem_regwrite <= idex_regwrite;
 			exmem_cjump <= idex_cjump;
 			exmem_cbranch <= idex_cbranch;
@@ -244,11 +259,11 @@ always @(posedge clk or negedge rst_b) begin
 			exmem_memread <= idex_memread;
 			exmem_membyte <= idex_membyte;
  			exmem_zero <= a_z;
-			exmem_result <= a_out ;
+			exmem_alu_result <= a_out;
 			exmem_immediate <= idex_readdata2;
 			exmem_writeregister <= idex_writeregister;
 			exmem_instruction <= idex_instruction;
-			memwb_readdata <= cache_data_out;
+			memwb_readdata <= {cache_data_out[0], cache_data_out[1], cache_data_out[2], cache_data_out[3]};
 			memwb_regwrite <= exmem_regwrite;
 			memwb_cjump <= exmem_cjump;
 			memwb_cbranch <= exmem_cbranch;
@@ -277,3 +292,4 @@ always @(posedge clk or negedge rst_b) begin
 end
 
 endmodule
+// TODO: fix link
