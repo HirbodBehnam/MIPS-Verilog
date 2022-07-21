@@ -23,12 +23,12 @@ assemble: $(MEM)
 INPUT ?= test/default/brtest0
 
 obj_dir/Vmips_machine: src/*.sv 323src/*.sv 323src/sim_main.cpp
-		docker run -ti -v ${CURDIR}:/work \
+#		docker run -ti -v ${CURDIR}:/work \
 			verilator/verilator:latest --exe --build --cc --top mips_machine		\
 					-Wno-BLKLOOPINIT											\
 					`find src 323src -iname '*.v' -o -iname '*.sv'`				\
 					323src/sim_main.cpp
-#		verilator --exe --build --cc --top mips_machine	\
+		verilator --exe --build --cc --top mips_machine	\
 			-Wno-BLKLOOPINIT											\
 					`find src 323src -iname '*.v' -o -iname '*.sv'`				\
 					323src/sim_main.cpp
