@@ -2,7 +2,6 @@
 
 #include "obj_dir/VFP_Negator.h"
 #include "verilated.h"
-#include <memory>
 #include <iostream>
 #include <random>
 
@@ -23,11 +22,11 @@ float random_float() {
     return dist(e2);
 }
 
-void test_number(VFP_Negator* module, float test_case) {
+void test_number(VFP_Negator& module, float test_case) {
     float expected = -test_case;
-    module->a = extract_float_bits(test_case);
-    module->eval();
-    float result = float_from_bits(module->result);
+    module.a = extract_float_bits(test_case);
+    module.eval();
+    float result = float_from_bits(module.result);
     if (std::isnan(test_case) && std::isnan(result)) // if both are NaN we are good
         return;
     if (result != expected)
@@ -35,24 +34,24 @@ void test_number(VFP_Negator* module, float test_case) {
 }
 
 int main(int argc, char** argv, char** env) {
-    auto context = std::make_unique<VerilatedContext>();
-    context->commandArgs(argc, argv);
-    auto top = std::make_unique<VFP_Negator>(context.get());
+    VerilatedContext context;
+    context.commandArgs(argc, argv);
+    VFP_Negator top(&context);
     // Especial tests:
-    top->a = extract_float_bits(0);
-    top->eval(); 
-    if (top->result != 0)
-        std::cout << "INVALID OUTPUT FOR ZERO TEST: " << float_from_bits(top->result) << std::endl;
-    test_number(top.get(), std::numeric_limits<float>::infinity());
-    test_number(top.get(), std::numeric_limits<float>::quiet_NaN());
-    test_number(top.get(), std::numeric_limits<float>::signaling_NaN());
-    test_number(top.get(), -std::numeric_limits<float>::infinity());
-    test_number(top.get(), -std::numeric_limits<float>::quiet_NaN());
-    test_number(top.get(), -std::numeric_limits<float>::signaling_NaN());
+    top.a = extract_float_bits(0);
+    top.eval(); 
+    if (top.result != 0)
+        std::cout << "INVALID OUTPUT FOR ZERO TEST: " << float_from_bits(top.result) << std::endl;
+    test_number(top, std::numeric_limits<float>::infinity());
+    test_number(top, std::numeric_limits<float>::quiet_NaN());
+    test_number(top, std::numeric_limits<float>::signaling_NaN());
+    test_number(top, -std::numeric_limits<float>::infinity());
+    test_number(top, -std::numeric_limits<float>::quiet_NaN());
+    test_number(top, -std::numeric_limits<float>::signaling_NaN());
     // Fuzz
     for (int i = 0; i < FUZZ_TESTS; i++) {
         float test_case = random_float();
-        test_number(top.get(), test_case);
+        test_number(top, test_case);
     }
     // Done
     std::cout << "TEST DONE" << std::endl;
