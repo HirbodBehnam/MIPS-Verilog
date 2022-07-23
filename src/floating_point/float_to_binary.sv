@@ -1,3 +1,5 @@
+`include "fp_consts.sv"
+
 module FloatToBinary (
     input wire [31:0] in,
     output reg [31:0] out,
@@ -12,9 +14,9 @@ module FloatToBinary (
         // Reset signals
         {overflow, underflow, out, index, fraction_counter} = 0;
         // Check zero
-        if (in == 0) begin
+        if (in == 0 | in ==? `QNAN_CONST | in ==? `SNAN_CONST) begin
             out = 0;
-        end else if (exponent > 32) begin
+        end else if (exponent > 32 | in == `INFINITY_POSITIVE_CONST | in == `INFINITY_NEGATIVE_CONST) begin
             overflow = ~negative;
             underflow = negative;
         end else if (exponent < 0) begin

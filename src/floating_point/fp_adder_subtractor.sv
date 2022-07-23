@@ -6,8 +6,6 @@ module FP_Adder (
     input wire [31:0] b,
     input wire add_sub_not,
     output reg [31:0] result,
-    output reg qNaN,
-    output reg sNaN,
     output reg underflow,
     output reg overflow,
     output reg inexcat
@@ -41,16 +39,14 @@ module FP_Adder (
 
     always_comb begin
         // Reset everything
-        {qNaN, sNaN, underflow, overflow, inexcat} = 0;
+        {underflow, overflow, inexcat} = 0;
         {a_fraction, b_fraction, result_exponent} = 0;
         counter = 0;
         // If one of them is NaN the result is NaN
         if (a ==? `SNAN_CONST | b ==? `SNAN_CONST) begin // Signaling is more powerful than quiet
             result = `SNAN_SAMPLE_CONST;
-            sNaN = 1;
         end else if (a ==? `QNAN_CONST | b ==? `QNAN_CONST) begin
             result = `QNAN_SAMPLE_CONST;
-            qNaN = 1;
         end else if (b == 0) begin // If b is zero then a is the result!
             result = a;
         end else if (a == 0) begin
@@ -59,14 +55,12 @@ module FP_Adder (
         end else if (a == `INFINITY_POSITIVE_CONST) begin
             if (b_to_accumlate == `INFINITY_NEGATIVE_CONST) begin
                 result = `QNAN_SAMPLE_CONST;
-                qNaN = 1;
             end else begin
                 result = `INFINITY_POSITIVE_CONST;
             end
         end else if (a == `INFINITY_NEGATIVE_CONST) begin
             if (b_to_accumlate == `INFINITY_POSITIVE_CONST) begin
                 result = `QNAN_SAMPLE_CONST;
-                qNaN = 1;
             end else begin
                 result = `INFINITY_NEGATIVE_CONST;
             end
