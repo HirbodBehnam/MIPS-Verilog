@@ -19,8 +19,6 @@ wire [23:0] mnts_a = {1'b1, a[22:0]};
 wire [23:0] mnts_b = {1'b1, b[22:0]};
 
 // combinational logic
-integer i;
-integer index_last_1_in_mantissaa_res;
 reg [47:0] result_mnts_mul;
 reg [7:0] result_exp_mul;
 always_comb begin
@@ -28,7 +26,6 @@ always_comb begin
     overflow = 0;
     result_exp_mul = 0;
     result_mnts_mul = 0;
-    index_last_1_in_mantissaa_res = 0;
     // case: a = zero
     if (a == `ZERO) begin
         // case: b is either NAN or infinity
@@ -78,11 +75,14 @@ always_comb begin
         result[22:0] = result_mnts_mul[45 -: 23];
         result[30:23] = result_exp_mul;
 
-        if (exp_a > 127 && exp_b > 127 && result_exp_mul < 127) // overflow
-            overflow = 1;  
-        else if (exp_a < 127 && exp_b < 127 && result_exp_mul > 127) // underflow
+        
+        if (exp_a > 127 && exp_b > 127 && result_exp_mul < 127)  begin // overflow
+            overflow = 1;              
+        end else if (exp_a < 127 && exp_b < 127 && result_exp_mul > 127) begin // underflow
+            result = `ZERO;
             underflow = 1;
-
+        end
+            
     end
 end
 
