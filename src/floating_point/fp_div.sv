@@ -69,32 +69,31 @@ always_comb begin
         result[31] = sign_a ^ sign_b;
         // compute exponent of result
         result_exp_div = exp_a - exp_b + 127;
-        // compute mantissa of result
-        result_mnts_div = {mnts_a, 24'h000000};
-        result_mnts_div /= {24'h000000, mnts_b};
-        
-        // normalizing mantiassa of result
-        // case: 0.5 < mnts_res < 1  
-        if (mnts_a < mnts_b) begin
-            result[22:0] = result_mnts_div[22:0];
-            result_exp_div -= 1;
-        end else if (mnts_a == mnts_b) begin
-            result[22:0] = 0;
-        end else begin
-            result[22:0] = result_mnts_div[23:1];
-            
-        end
-        // affect 'result' by calculated exp 
-        result[30:23] = result_exp_div;
 
-        if (exp_a > 127 && exp_b > 127 && result_exp_div < 127)  begin // overflow
+        if (exp_a > 127 && exp_b < 127 && result_exp_div < 127)  begin // overflow
             overflow = 1;              
-        end else if (exp_a < 127 && exp_b < 127 && result_exp_div > 127) begin // underflow
+        end else if (exp_a < 127 && exp_b > 127 && result_exp_div > 127) begin // underflow
             underflow = 1;
+        end else begin
+            // compute mantissa of result
+            result_mnts_div = {mnts_a, 24'h000000};
+            result_mnts_div /= {24'h000000, mnts_b};
+            
+            // normalizing mantiassa of result
+            // case: 0.5 < mnts_res < 1  
+            if (mnts_a < mnts_b) begin
+                result[22:0] = result_mnts_div[22:0];
+                result_exp_div -= 1;
+            end else if (mnts_a == mnts_b) begin
+                result[22:0] = 0;
+            end else begin
+                result[22:0] = result_mnts_div[23:1];
+                
+            end
+            // affect 'result' by calculated exp 
+            result[30:23] = result_exp_div;
         end
-
     end
-
 end
     
 endmodule

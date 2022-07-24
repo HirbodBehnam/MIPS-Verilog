@@ -51,37 +51,39 @@ always_comb begin
         result[31] = sign_a ^ sign_b;
         // compute exponent result
         result_exp_mul = exp_a + exp_b - 127;
-        // compute mantissa of result
-        result_mnts_mul = 0; // reseting this reg
-        result_mnts_mul = mnts_a * mnts_b;
-        // truncation of mantissa multiplication result 
-        case (result_mnts_mul[47:46])
-            2'd0: begin
-                result_mnts_mul <<= 1;
-                result_exp_mul--;
-            end
-            2'd1: begin
-                // We are good!
-            end
-            2'd2: begin
-                result_mnts_mul >>= 1;
-                result_exp_mul++;
-            end
-            2'd3: begin
-                result_mnts_mul >>= 1;
-                result_exp_mul++;
-            end
-        endcase
-        result[22:0] = result_mnts_mul[45 -: 23];
-        result[30:23] = result_exp_mul;
 
-        
         if (exp_a > 127 && exp_b > 127 && result_exp_mul < 127)  begin // overflow
-            overflow = 1;              
+            overflow = 1;       
+            result = `INFINITY_POSITIVE_CONST;
+            result[31] = sign_a ^ sign_b;       
         end else if (exp_a < 127 && exp_b < 127 && result_exp_mul > 127) begin // underflow
             underflow = 1;
-        end
-            
+            result = `ZERO;
+        end else begin
+            // compute mantissa of result
+            result_mnts_mul = 0; // reseting this reg
+            result_mnts_mul = mnts_a * mnts_b;
+            // normalisation of mantissa multiplication result 
+            case (result_mnts_mul[47:46])
+                2'd0: begin
+                    result_mnts_mul <<= 1;
+                    result_exp_mul--;
+                end
+                2'd1: begin
+                    // We are good!
+                end
+                2'd2: begin
+                    result_mnts_mul >>= 1;
+                    result_exp_mul++;
+                end
+                2'd3: begin
+                    result_mnts_mul >>= 1;
+                    result_exp_mul++;
+                end
+            endcase
+            result[22:0] = result_mnts_mul[45 -: 23];
+            result[30:23] = result_exp_mul;        
+        end     
     end
 end
 
