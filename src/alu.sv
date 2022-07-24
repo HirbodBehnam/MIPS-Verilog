@@ -1,4 +1,4 @@
-//`include "src/alu_opts.sv"
+`include "src/alu_opts.sv"
 
 module ALU(
     input wire [4:0] opt,

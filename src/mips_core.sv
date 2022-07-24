@@ -1,9 +1,9 @@
-//`include "src/adder.sv"
-//`include "src/sign_extend.sv"
-//`include "src/alu.sv"
-//`include "src/control_unit.sv"
-//`include "323src/regfile.sv"
-//`include "src/cache.sv"
+`include "src/adder.sv"
+`include "src/sign_extend.sv"
+`include "src/alu.sv"
+`include "src/control_unit.sv"
+`include "323src/regfile.sv"
+`include "src/cache.sv"
 
 module mips_core(
 	inst_addr,
@@ -51,6 +51,13 @@ wire c_PcOrMem;
 wire c_SignExtend;
 wire c_MemByte;
 wire c_halted;
+wire [4:0] c_FloatingPointFirstReg;
+wire [4:0] c_FloatingPointSecondReg;
+wire [4:0] c_FloatingPointResultReg;
+wire c_FloatingPointWriteEnable;
+wire c_ZeroImmediate;
+wire c_FPUorALU;
+wire [3:0] c_FPUOpcode;
 // regfile wires
 wire [4:0] r_writereg1;
 wire [4:0] r_writereg2;
@@ -199,7 +206,14 @@ CU ct(
 	.Halted(c_halted),
 	.rst_b(rst_b),
 	.SignExtend(c_SignExtend),
-	.MemByte(c_MemByte)
+	.MemByte(c_MemByte),
+	.FloatingPointFirstReg(c_FloatingPointFirstReg),
+	.FloatingPointSecondReg(c_FloatingPointSecondReg),
+	.FloatingPointResultReg(c_FloatingPointResultReg),
+	.FloatingPointWriteEnable(c_FloatingPointWriteEnable),
+	.ZeroImmediate(c_ZeroImmediate),
+	.FPUorALU(c_FPUorALU),
+	.FPUOpcode(c_FPUOpcode)
 );
 
 regfile rr(
