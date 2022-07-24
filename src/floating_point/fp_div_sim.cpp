@@ -1,4 +1,4 @@
-// Run with verilator --top FP_Adder --cc --exe --build fp_mult*
+// Run with verilator --top FP_Dividor --cc --exe --build fp_div*
 
 #include "obj_dir/VFP_Dividor.h"
 #include "verilated.h"
@@ -19,18 +19,18 @@ constexpr float float_from_bits(uint32_t a) {
 float random_float() {
     static std::random_device rd;
     static std::mt19937 e2(rd());
-    static std::uniform_real_distribution<> dist(-1000, 1000);
+    static std::uniform_real_distribution<> dist(-100, 100);
     return dist(e2);
 }
 
 void test_number(VFP_Dividor& module, float a, float b) {
-    constexpr float epsilon = 1e-4;
     module.a = extract_float_bits(a);
     module.b = extract_float_bits(b);
     module.eval();
     float expected = a / b;
     float got = float_from_bits(module.result);
-    if (std::abs(expected - got) > epsilon && !(std::isnan(got) && std::isnan(expected)) && std::abs((int32_t)module.result - (int32_t)extract_float_bits(expected)) > 1)
+    //std::cout << expected << " " << got << std::endl;
+    if (expected != got && !(std::isnan(got) && std::isnan(expected)) && std::abs((int32_t)module.result - (int32_t)extract_float_bits(expected)) > 1)
         std::cout << "Invalid result on " << a << " / " << b <<
         ": Expected " << expected << " but got " << got <<
         "; difference of these numbers are: " << std::abs(expected - got) << std::endl;

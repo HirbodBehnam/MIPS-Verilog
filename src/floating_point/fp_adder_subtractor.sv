@@ -1,5 +1,5 @@
-`include "fp_consts.sv"
-`include "fp_negator.sv"
+`include "src/floating_point/fp_consts.sv"
+`include "src/floating_point/fp_negator.sv"
 
 module FP_Adder (
     input wire [31:0] a,
@@ -12,9 +12,8 @@ module FP_Adder (
 );
 
     wire [31:0] b_negated, b_to_accumlate;
-    wire negator_qNaN, negator_sNaN;
 
-    FP_Negator negator(b, b_negated, negator_qNaN, negator_sNaN);
+    FP_Negator negator(b, b_negated);
 
     // We only do the summation in this module. If the operation was sub, we use the -b
     assign b_to_accumlate = add_sub_not ? b : b_negated;

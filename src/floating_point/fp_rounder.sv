@@ -1,6 +1,6 @@
-`include "fp_consts.sv"
-`include "fp_adder_subtractor.sv"
-`include "float_to_binary.sv"
+`include "src/floating_point/fp_consts.sv"
+`include "src/floating_point/fp_adder_subtractor.sv"
+`include "src/floating_point/float_to_binary.sv"
 
 module FP_Rounder (
     input wire [31:0] in,

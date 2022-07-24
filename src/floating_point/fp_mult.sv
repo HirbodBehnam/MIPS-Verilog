@@ -1,4 +1,4 @@
-`include "fp_consts.sv";
+`include "src/floating_point/fp_consts.sv";
 
 module FP_Multiplicator (
     input [31:0] a,
@@ -79,7 +79,6 @@ always_comb begin
         if (exp_a > 127 && exp_b > 127 && result_exp_mul < 127)  begin // overflow
             overflow = 1;              
         end else if (exp_a < 127 && exp_b < 127 && result_exp_mul > 127) begin // underflow
-            result = `ZERO;
             underflow = 1;
         end
             

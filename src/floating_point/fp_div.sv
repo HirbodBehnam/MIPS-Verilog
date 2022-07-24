@@ -1,9 +1,10 @@
-`include "fp_consts.sv";
+`include "src/floating_point/fp_consts.sv";
 
 module FP_Dividor (
     input [31:0] a,
     input [31:0] b,
     output reg [31:0] result,
+    output reg divide_by_zero,
     output reg overflow,
     output reg underflow
 ); // result = a / b (Quotient of division)
@@ -27,6 +28,7 @@ always_comb begin
     overflow = 0;
     result_mnts_div = 0;
     result_exp_div = 0;
+    divide_by_zero = 0;
     // First, handling some edgecases:
     //1. Either a or b is NAN
     if (a ==? `QNAN_CONST || a ==? `SNAN_CONST || b ==? `QNAN_CONST || b ==? `SNAN_CONST) begin
@@ -35,12 +37,13 @@ always_comb begin
     //2. Division By Zero
     else if (b == `ZERO) begin
         // Zero Dividend
-        if (a == `ZERO) 
+        if (a == `ZERO)
             result = `QNAN_SAMPLE_CONST;
         else begin
             result = `INFINITY_POSITIVE_CONST; 
             result[31] = sign_a ^ sign_b;
         end
+        divide_by_zero = 1;
     end 
     //3. Division by Infinity
     else if (b ==? `INFINITY_GENERAL_PATTERN) begin 
@@ -77,7 +80,6 @@ always_comb begin
             result_exp_div -= 1;
         end else if (mnts_a == mnts_b) begin
             result[22:0] = 0;
-            // $display("mantissa result: %b", result);
         end else begin
             result[22:0] = result_mnts_div[23:1];
             
@@ -88,7 +90,6 @@ always_comb begin
         if (exp_a > 127 && exp_b > 127 && result_exp_div < 127)  begin // overflow
             overflow = 1;              
         end else if (exp_a < 127 && exp_b < 127 && result_exp_div > 127) begin // underflow
-            result = `ZERO;
             underflow = 1;
         end
 
