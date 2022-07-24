@@ -1,5 +1,5 @@
-`include "fp_consts.sv"
-`include "fp_negator.sv"
+`include "src/floating_point/fp_consts.sv"
+`include "src/floating_point/fp_negator.sv"
 
 module FP_Adder (
     input wire [31:0] a,

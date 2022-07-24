@@ -1,13 +1,13 @@
-`include "fpu_opcodes.sv"
-`include "fp_consts.sv"
-`include "fp_negator.sv"
-`include "fp_adder_subtractor.sv"
-`include "fp_mult.sv"
-`include "fp_div.sv"
-`include "fp_rounder.sv"
-`include "binary_to_float.sv"
-`include "float_to_binary.sv"
-`include "fp_comparator.sv"
+`include "src/floating_point/fpu_opcodes.sv"
+`include "src/floating_point/fp_consts.sv"
+`include "src/floating_point/fp_negator.sv"
+`include "src/floating_point/fp_adder_subtractor.sv"
+`include "src/floating_point/fp_mult.sv"
+`include "src/floating_point/fp_div.sv"
+`include "src/floating_point/fp_rounder.sv"
+`include "src/floating_point/binary_to_float.sv"
+`include "src/floating_point/float_to_binary.sv"
+`include "src/floating_point/fp_comparator.sv"
 
 module FPU (
     input wire [31:0] a,

@@ -29,7 +29,7 @@ obj_dir/Vmips_machine: src/*.sv 323src/*.sv 323src/sim_main.cpp
 					`find src 323src -iname '*.v' -o -iname '*.sv'`				\
 					323src/sim_main.cpp
 		verilator --exe --build --cc --top mips_machine	\
-			-Wno-BLKLOOPINIT											\
+			-Wno-BLKLOOPINIT -Wno-MODDUP											\
 					`find src 323src -iname '*.v' -o -iname '*.sv'`				\
 					323src/sim_main.cpp
 

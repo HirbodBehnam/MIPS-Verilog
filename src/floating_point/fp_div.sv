@@ -1,4 +1,4 @@
-`include "fp_consts.sv";
+`include "src/floating_point/fp_consts.sv";
 
 module FP_Dividor (
     input [31:0] a,
