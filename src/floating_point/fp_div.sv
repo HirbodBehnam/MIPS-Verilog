@@ -38,7 +38,7 @@ always_comb begin
         if (a == `ZERO) 
             result = `QNAN_SAMPLE_CONST;
         else begin
-            result = `INFINITY_GENERAL_PATTERN; 
+            result = `INFINITY_POSITIVE_CONST; 
             result[31] = sign_a ^ sign_b;
         end
     end 
@@ -56,7 +56,7 @@ always_comb begin
     end 
     // 5. Dividend Infinity (Divisor is not an edgecase)
     else if (a ==? `INFINITY_GENERAL_PATTERN) begin
-        result = `INFINITY_GENERAL_PATTERN;
+        result = `INFINITY_POSITIVE_CONST;
         result[31]= sign_a ^ sign_b;
     end
     // All edgecases have been covered!
