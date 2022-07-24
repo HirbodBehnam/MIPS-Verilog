@@ -24,8 +24,9 @@ module ALU(
     // Carry from https://electronics.stackexchange.com/a/509341
 
     // The operation itself
-    always_latch @(a, b, opt, shamt) begin
+    always_comb begin
         carry = 0; // clear carry at first
+        temp = 0;
         case (opt)
             // Simple math arithmetic
             `ALU_ADD: begin // add

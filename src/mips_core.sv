@@ -4,6 +4,7 @@
 `include "src/control_unit.sv"
 `include "323src/regfile.sv"
 `include "src/cache.sv"
+`include "src/floating_point/fpu.sv"
 
 module mips_core(
 	inst_addr,
@@ -32,8 +33,8 @@ output         halted;
 wire [31:0] a_immidate_or_reg_data;
 wire [31:0] a_out;
 wire a_z;
-wire a_n;
-wire a_c;
+wire [31:0] fpu_out;
+wire [31:0] execute_output = idex_fpu_or_alu ? fpu_out : a_out; // The output of execute phase
 
 // control wires
 wire c_RegDst;
@@ -64,6 +65,8 @@ wire [4:0] r_writereg2;
 wire [31:0] r_writedata;
 wire [31:0] r_read1;
 wire [31:0] r_read2;
+wire [31:0] r_float_register_data_1;
+wire [31:0] r_float_register_data_2;
 
 // misc
 wire [31:0] ext_15_0;
@@ -97,6 +100,13 @@ reg idex_link;
 reg idex_halted;
 reg[31:0] idex_pc;
 reg[31:0] idex_instruction;
+reg[31:0] idex_float_register_data_1;
+reg[31:0] idex_float_register_data_2;
+reg[4:0]  idex_float_writeregister;
+reg idex_float_write_enable;
+reg idex_zero_immediate;
+reg idex_fpu_or_alu;
+reg[3:0] idex_fpu_opcode;
 reg[4:0]  exmem_writeregister;
 reg exmem_regwrite;
 reg exmem_cjump;
@@ -115,6 +125,8 @@ reg[31:0] exmem_instruction;
 reg[31:0] exmem_signextend;
 reg exmem_link;
 reg exmem_halted;
+reg[4:0] exmem_float_writeregister;
+reg exmem_float_write_enable;
 reg[4:0]  memwb_writeregister;
 reg[31:0] memwb_memory_read_data;
 reg[31:0] memwb_pc;
@@ -123,6 +135,8 @@ reg memwb_memtoreg;
 reg[31:0] memwb_alu_result;
 reg memwb_halted;
 reg memwb_link;
+reg[4:0] memwb_float_writeregister;
+reg memwb_float_write_enable;
 
 // Flush macro
 // If flush all is true, it will flust MEM/WB as well
@@ -147,6 +161,13 @@ reg memwb_link;
 	idex_halted <= 0; \
 	idex_pc <= 0; \
 	idex_instruction <= 0; \
+	idex_float_register_data_1 <= 0; \
+	idex_float_register_data_2 <= 0; \
+	idex_float_writeregister <= 0; \
+	idex_float_write_enable <= 0; \
+	idex_zero_immediate <= 0; \
+	idex_fpu_or_alu <= 0; \
+	idex_fpu_opcode <= 0; \
 	exmem_writeregister <= 0; \
 	exmem_regwrite <= 0; \
 	exmem_cjump <= 0; \
@@ -165,6 +186,8 @@ reg memwb_link;
 	exmem_signextend <= 0; \
 	exmem_link <= 0; \
 	exmem_halted <= 0; \
+	exmem_float_writeregister <= 0; \
+	exmem_float_write_enable <= 0; \
 	if (FLUSH_ALL) begin \
 		memwb_writeregister <= 0; \
 		memwb_memory_read_data <= 0; \
@@ -174,6 +197,8 @@ reg memwb_link;
 		memwb_alu_result <= 0; \
 		memwb_halted <= 0; \
 		memwb_link <= 0; \
+		memwb_float_writeregister <= 0; \
+		memwb_float_write_enable <= 0; \
 	end
 	
 
@@ -181,12 +206,25 @@ reg memwb_link;
 ALU al(
 	.opt(idex_aluop),
 	.a(idex_register_data_1),
-	.b(a_immidate_or_reg_data),
+	.b(idex_zero_immediate ? 0 : a_immidate_or_reg_data),
 	.shamt(idex_instruction[10:6]),
 	.out(a_out),
 	.zero(a_z),
-	.negative(a_n),
-	.carry(a_c)
+	.negative(),
+	.carry()
+);
+
+FPU fpu(
+	.a(idex_float_register_data_1),
+	.b(idex_float_register_data_2),
+	.opcode(idex_fpu_opcode),
+	.result(fpu_out),
+	.inexact(),
+	.overflow(),
+	.underflow(),
+	.qNaN(),
+	.sNaN(),
+	.divide_by_zero()
 );
 
 CU ct(
@@ -227,6 +265,19 @@ regfile rr(
 	.halted(halted),
 	.rs_data(r_read1),
 	.rt_data(r_read2)
+);
+
+regfile floating_point_registers(
+	.rs_num(c_FloatingPointFirstReg),
+	.rt_num(c_FloatingPointSecondReg),
+	.rd_num(memwb_float_writeregister),
+	.rd_data(r_writedata), // same as normal register file
+	.rd_we(memwb_float_write_enable),
+	.clk(clk),
+	.rst_b(rst_b),
+	.halted(0), // we dont dump this one
+	.rs_data(r_float_register_data_1),
+	.rt_data(r_float_register_data_2)
 );
 
 //always @(*)
@@ -314,6 +365,13 @@ always @(posedge clk or negedge rst_b) begin
 				idex_instruction <= ifid_instruction; // The instruction itself
 				idex_halted <= c_halted; // We must halt after we have written to registers
 				idex_link <= c_Link; // True if we want to jal. Goes until memory
+				idex_float_register_data_1 <= r_float_register_data_1; // I think you know what these are
+				idex_float_register_data_2 <= r_float_register_data_2; // I think you know what these are
+				idex_float_writeregister <= c_FloatingPointResultReg;  // I think you know what these are
+				idex_float_write_enable <= c_FloatingPointWriteEnable; // I think you know what these are
+				idex_zero_immediate <= c_ZeroImmediate; // Should we give zero as second operand of alu?
+				idex_fpu_or_alu <= c_FPUorALU; // The result to mem is from alu or fpu?
+				idex_fpu_opcode <= c_FPUOpcode; // Opcode of FPU
 				// After Execute (ALU)
 				exmem_regwrite <= idex_regwrite; // The write enable which must go until end
 				exmem_cjump <= idex_cjump; // Should we jump? This is the last one
@@ -327,12 +385,14 @@ always @(posedge clk or negedge rst_b) begin
 				exmem_register_data_1 <= idex_register_data_1; // Needed for jr in next 
 				exmem_register_data_2 <= idex_register_data_2; // Needed for data to be written to memory
  				exmem_zero <= a_z; // Is the alu result zero?
-				exmem_alu_result <= a_out; // The result of alu
+				exmem_alu_result <= execute_output; // The result of alu
 				exmem_link <= idex_link; // Link used in jal
 				exmem_writeregister <= idex_writeregister; // Number of register to write in
 				exmem_instruction <= idex_instruction; // The instruction itself
 				exmem_halted <= idex_halted; // Halt at last
 				exmem_signextend <= idex_signextend; // Used for jump
+				exmem_float_writeregister <= idex_float_writeregister;
+				exmem_float_write_enable <= idex_float_write_enable;
 			end
 			// Memory phase (last one)
 			memwb_memory_read_data <= {cache_data_out[0], cache_data_out[1], cache_data_out[2], cache_data_out[3]}; // Mem out
@@ -343,6 +403,8 @@ always @(posedge clk or negedge rst_b) begin
 			memwb_memtoreg <= exmem_memtoreg; // Should memory data go to register or alu
 			memwb_halted <= exmem_halted; // Halt the system if needed
 			memwb_link <= exmem_link; // If link is true the pc will go to register
+			memwb_float_writeregister <= exmem_float_writeregister;
+			memwb_float_write_enable <= exmem_float_write_enable;
 		end else begin
 			$display("STALLED!");
 		end

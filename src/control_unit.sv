@@ -33,6 +33,7 @@ module CU(
 
     always @(*) begin
     {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, NotLink, SignExtend, MemByte, Halted} = 0;
+    {FloatingPointFirstReg, FloatingPointSecondReg, FloatingPointResultReg, FloatingPointWriteEnable, ZeroImmediate, FPUorALU, FPUOpcode} = 0;
 	if(~rst_b)
 	begin
 		Halted = 0;
