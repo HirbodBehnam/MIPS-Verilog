@@ -40,6 +40,7 @@ module CU(
         casez (opcode)
         // R type opts
         `R_TYPE: begin
+            NotLink = 1;
             case (func)
                 `XOR:begin
                     {RegDest,NotLink,RegWrite}=3'b111;
@@ -179,11 +180,13 @@ module CU(
                 end
 
                 `F_MOVE_TO_FLOAT:begin
-                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;              
+                    FloatingPointWriteEnable = 1;
+                    ALUOp = `ALU_ADD; // Zero + register
                 end
 
                 `F_MOVE_FROM_FLOAT:begin
-                    {FloatingPointWriteEnable, FPUorALU} = 2'b01;             
+                    {RegDest, RegWrite, FPUorALU} = 3'b111;
+                    FPUOpcode = `FPU_ADD; // Zero + number
                 end
         
                 default:begin
