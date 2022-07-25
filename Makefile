@@ -40,7 +40,7 @@ sim: compile assemble
 	./obj_dir/Vmips_machine
 
 verify: sim
-	diff -u ${INPUT}.reg output/regdump.reg 1>&2
+	diff --strip-trailing-cr -u ${INPUT}.reg output/regdump.reg 1>&2
 
 verify-all: compile assemble
 	@fail=0;																				\
