@@ -20,11 +20,7 @@ module CU(
     output reg SignExtend,
     output reg MemByte,
     // Added for phase 4
-    output reg [4:0] FloatingPointFirstReg,
-    output reg [4:0] FloatingPointSecondReg,
-    output reg [4:0] FloatingPointResultReg,
     output reg FloatingPointWriteEnable,
-    output reg ZeroImmediate,
     output reg FPUorALU,
     output reg [3:0] FPUOpcode
 );
@@ -33,7 +29,7 @@ module CU(
 
     always @(*) begin
     {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, NotLink, SignExtend, MemByte, Halted} = 0;
-    {FloatingPointFirstReg, FloatingPointSecondReg, FloatingPointResultReg, FloatingPointWriteEnable, ZeroImmediate, FPUorALU, FPUOpcode} = 0;
+    {FloatingPointWriteEnable, FPUorALU, FPUOpcode} = 0;
 	if(~rst_b)
 	begin
 		Halted = 0;
