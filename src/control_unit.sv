@@ -107,6 +107,86 @@ module CU(
                 `JR:begin
                     {Jump, JumpReg} = 2'b11;
                     end
+                `FPU_ADD:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0000;
+                end
+
+                `FPU_SUB:begin
+                    FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0001;
+                end
+
+                `FPU_MULT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0010;
+                end
+
+                `FPU_DIV:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0011;                    
+                end
+
+                `FPU_NEGATE:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0100;                    
+                end
+
+                `FPU_ROUND:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0101;                    
+                end
+
+                `FPU_FLOAT_TO_BINARY:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0110;                    
+                end
+
+                `FPU_BINARY_TO_FLOAT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b0111;                    
+                end
+
+                `FPU_COMP_LT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1000;                    
+                end
+
+                `FPU_COMP_LE:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1001;                    
+                end
+
+                `FPU_COMP_EQ:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1010;                    
+                end
+
+                `FPU_COMP_NQ:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1011;                    
+                end
+
+                `FPU_COMP_GT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1100;                    
+                end
+
+                `FPU_COMP_GE:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1101;                    
+                end
+
+                `FPU_MOVE_TO_FLOAT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = 4'b1110;                    
+                end
+
+                `FPU_MOVE_FROM_FLOAT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b01;
+                    FPUOpcode = 4'b1111;                    
+                end
+        
                 default:begin
                     $display("UNKNOWN FUNC: %b", func);
                     Halted = 1'b1;
