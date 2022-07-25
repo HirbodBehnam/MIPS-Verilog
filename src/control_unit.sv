@@ -107,84 +107,84 @@ module CU(
                 `JR:begin
                     {Jump, JumpReg} = 2'b11;
                     end
-                `FPU_ADD:begin
+                `F_ADD:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0000;
+                    FPUOpcode = `FPU_ADD;
                 end
 
-                `FPU_SUB:begin
+                `F_SUB:begin
                     FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0001;
+                    FPUOpcode = `FPU_SUB;
                 end
 
-                `FPU_MULT:begin
+                `F_MULT:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0010;
+                    FPUOpcode = `FPU_MULT;
                 end
 
-                `FPU_DIV:begin
+                `F_DIV:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0011;                    
+                    FPUOpcode = `FPU_DIV;                    
                 end
 
-                `FPU_NEGATE:begin
+                `F_NEGATE:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0100;                    
+                    FPUOpcode = `FPU_NEGATE;                    
                 end
 
-                `FPU_ROUND:begin
+                `F_ROUND:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0101;                    
+                    FPUOpcode = `FPU_ROUND;                    
                 end
 
-                `FPU_FLOAT_TO_BINARY:begin
+                `F_FLOAT_TO_BINARY:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0110;                    
+                    FPUOpcode = `FPU_FLOAT_TO_BINARY;                    
                 end
 
-                `FPU_BINARY_TO_FLOAT:begin
+                `F_BINARY_TO_FLOAT:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b0111;                    
+                    FPUOpcode = `FPU_BINARY_TO_FLOAT;                    
                 end
 
-                `FPU_COMP_LT:begin
+                `F_COMP_LT:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1000;                    
+                    FPUOpcode = `FPU_COMP_LT;                    
                 end
 
-                `FPU_COMP_LE:begin
+                `F_COMP_LE:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1001;                    
+                    FPUOpcode = FPU_COMP_LE;                    
                 end
 
-                `FPU_COMP_EQ:begin
+                `F_COMP_EQ:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1010;                    
+                    FPUOpcode = FPU_COMP_EQ;                    
                 end
 
-                `FPU_COMP_NQ:begin
+                `F_COMP_NQ:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1011;                    
+                    FPUOpcode = FPU_COMP_NQ;                    
                 end
 
-                `FPU_COMP_GT:begin
+                `F_COMP_GT:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1100;                    
+                    FPUOpcode = `FPU_COMP_GT;                    
                 end
 
-                `FPU_COMP_GE:begin
+                `F_COMP_GE:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1101;                    
+                    FPUOpcode = `FPU_COMP_GE;                    
                 end
 
-                `FPU_MOVE_TO_FLOAT:begin
+                `F_MOVE_TO_FLOAT:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = 4'b1110;                    
+                    FPUOpcode = `FPU_MOVE_TO_FLOAT;                    
                 end
 
-                `FPU_MOVE_FROM_FLOAT:begin
+                `F_MOVE_FROM_FLOAT:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b01;
-                    FPUOpcode = 4'b1111;                    
+                    FPUOpcode = `FPU_MOVE_TO_FLOAT;                    
                 end
         
                 default:begin
