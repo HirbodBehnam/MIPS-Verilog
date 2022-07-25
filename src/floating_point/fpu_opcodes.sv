@@ -12,5 +12,3 @@
 `define FPU_COMP_NQ 4'b1011
 `define FPU_COMP_GT 4'b1100
 `define FPU_COMP_GE 4'b1101
-`define FPU_MOVE_TO_FLOAT 4'b1110
-`define FPU_MOVE_TO_FLOAT 4'b1111

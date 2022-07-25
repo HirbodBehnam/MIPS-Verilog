@@ -1,5 +1,6 @@
 `include "src/control_unit_macros.sv"
 `include "src/alu_opts.sv"
+`include "src/floating_point/fpu_opcodes.sv"
 
 module CU(
     input wire [5:0] opcode,
@@ -113,7 +114,7 @@ module CU(
                 end
 
                 `F_SUB:begin
-                    FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
                     FPUOpcode = `FPU_SUB;
                 end
 
@@ -154,17 +155,17 @@ module CU(
 
                 `F_COMP_LE:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = FPU_COMP_LE;                    
+                    FPUOpcode = `FPU_COMP_LE;                    
                 end
 
                 `F_COMP_EQ:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = FPU_COMP_EQ;                    
+                    FPUOpcode = `FPU_COMP_EQ;                    
                 end
 
                 `F_COMP_NQ:begin
                     {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = FPU_COMP_NQ;                    
+                    FPUOpcode = `FPU_COMP_NQ;                    
                 end
 
                 `F_COMP_GT:begin
@@ -178,13 +179,11 @@ module CU(
                 end
 
                 `F_MOVE_TO_FLOAT:begin
-                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
-                    FPUOpcode = `FPU_MOVE_TO_FLOAT;                    
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;              
                 end
 
                 `F_MOVE_FROM_FLOAT:begin
-                    {FloatingPointWriteEnable, FPUorALU} = 2'b01;
-                    FPUOpcode = `FPU_MOVE_TO_FLOAT;                    
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b01;             
                 end
         
                 default:begin
