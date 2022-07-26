@@ -1,0 +1,27 @@
+# Define the numbers
+addi $1, $0, 123
+addi $2, $0, 321
+# Move them to float register file
+move.to.float $1, $1
+move.to.float $2, $2
+# Convert them to float
+bin.to.float $1, $1
+bin.to.float $2, $2
+# Compare
+float.lt $3, $1, $2
+move.from.float $3, $3
+beq $3, $0, DONE
+# Swap if here
+add $3, $0, $1
+add $1, $0, $2
+add $2, $0, $3
+# Do it again
+DONE:
+move.to.float $1, $1
+move.to.float $2, $2
+bin.to.float $1, $1
+bin.to.float $2, $2
+float.div $3, $1, $2
+float.round $3, $3
+move.from.float $3, $3
+syscall
