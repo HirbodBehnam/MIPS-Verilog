@@ -52,11 +52,7 @@ wire c_PcOrMem;
 wire c_SignExtend;
 wire c_MemByte;
 wire c_halted;
-wire [4:0] c_FloatingPointFirstReg;
-wire [4:0] c_FloatingPointSecondReg;
-wire [4:0] c_FloatingPointResultReg;
 wire c_FloatingPointWriteEnable;
-wire c_ZeroImmediate;
 wire c_FPUorALU;
 wire [3:0] c_FPUOpcode;
 // regfile wires
@@ -104,7 +100,6 @@ reg[31:0] idex_float_register_data_1;
 reg[31:0] idex_float_register_data_2;
 reg[4:0]  idex_float_writeregister;
 reg idex_float_write_enable;
-reg idex_zero_immediate;
 reg idex_fpu_or_alu;
 reg[3:0] idex_fpu_opcode;
 reg[4:0]  exmem_writeregister;
@@ -165,7 +160,6 @@ reg memwb_float_write_enable;
 	idex_float_register_data_2 <= 0; \
 	idex_float_writeregister <= 0; \
 	idex_float_write_enable <= 0; \
-	idex_zero_immediate <= 0; \
 	idex_fpu_or_alu <= 0; \
 	idex_fpu_opcode <= 0; \
 	exmem_writeregister <= 0; \
@@ -206,7 +200,7 @@ reg memwb_float_write_enable;
 ALU al(
 	.opt(idex_aluop),
 	.a(idex_register_data_1),
-	.b(idex_zero_immediate ? 0 : a_immidate_or_reg_data),
+	.b(a_immidate_or_reg_data),
 	.shamt(idex_instruction[10:6]),
 	.out(a_out),
 	.zero(a_z),
@@ -245,11 +239,7 @@ CU ct(
 	.rst_b(rst_b),
 	.SignExtend(c_SignExtend),
 	.MemByte(c_MemByte),
-	.FloatingPointFirstReg(c_FloatingPointFirstReg),
-	.FloatingPointSecondReg(c_FloatingPointSecondReg),
-	.FloatingPointResultReg(c_FloatingPointResultReg),
 	.FloatingPointWriteEnable(c_FloatingPointWriteEnable),
-	.ZeroImmediate(c_ZeroImmediate),
 	.FPUorALU(c_FPUorALU),
 	.FPUOpcode(c_FPUOpcode)
 );
@@ -268,10 +258,10 @@ regfile rr(
 );
 
 regfile floating_point_registers(
-	.rs_num(c_FloatingPointFirstReg),
-	.rt_num(c_FloatingPointSecondReg),
+	.rs_num(ifid_instruction[25:21]), // are floating point operations are R-Type
+	.rt_num(ifid_instruction[20:16]), // are floating point operations are R-Type
 	.rd_num(memwb_float_writeregister),
-	.rd_data(r_writedata), // same as normal register file
+	.rd_data(memwb_alu_result), // always from the alu. Never from memory or PC
 	.rd_we(memwb_float_write_enable),
 	.clk(clk),
 	.rst_b(rst_b),
@@ -367,9 +357,8 @@ always @(posedge clk or negedge rst_b) begin
 				idex_link <= c_Link; // True if we want to jal. Goes until memory
 				idex_float_register_data_1 <= r_float_register_data_1; // I think you know what these are
 				idex_float_register_data_2 <= r_float_register_data_2; // I think you know what these are
-				idex_float_writeregister <= c_FloatingPointResultReg;  // I think you know what these are
+				idex_float_writeregister <= ifid_instruction[15:11]; // are floating point instructions are R type
 				idex_float_write_enable <= c_FloatingPointWriteEnable; // I think you know what these are
-				idex_zero_immediate <= c_ZeroImmediate; // Should we give zero as second operand of alu?
 				idex_fpu_or_alu <= c_FPUorALU; // The result to mem is from alu or fpu?
 				idex_fpu_opcode <= c_FPUOpcode; // Opcode of FPU
 				// After Execute (ALU)

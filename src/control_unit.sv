@@ -1,5 +1,6 @@
 `include "src/control_unit_macros.sv"
 `include "src/alu_opts.sv"
+`include "src/floating_point/fpu_opcodes.sv"
 
 module CU(
     input wire [5:0] opcode,
@@ -20,11 +21,7 @@ module CU(
     output reg SignExtend,
     output reg MemByte,
     // Added for phase 4
-    output reg [4:0] FloatingPointFirstReg,
-    output reg [4:0] FloatingPointSecondReg,
-    output reg [4:0] FloatingPointResultReg,
     output reg FloatingPointWriteEnable,
-    output reg ZeroImmediate,
     output reg FPUorALU,
     output reg [3:0] FPUOpcode
 );
@@ -33,7 +30,7 @@ module CU(
 
     always @(*) begin
     {ALUsrc, Jump, JumpReg, Branch, MemRead, MemToReg, MemWrite, RegDest, RegWrite, NotLink, SignExtend, MemByte, Halted} = 0;
-    {FloatingPointFirstReg, FloatingPointSecondReg, FloatingPointResultReg, FloatingPointWriteEnable, ZeroImmediate, FPUorALU, FPUOpcode} = 0;
+    {FloatingPointWriteEnable, FPUorALU, FPUOpcode} = 0;
 	if(~rst_b)
 	begin
 		Halted = 0;
@@ -43,6 +40,7 @@ module CU(
         casez (opcode)
         // R type opts
         `R_TYPE: begin
+            NotLink = 1;
             case (func)
                 `XOR:begin
                     {RegDest,NotLink,RegWrite}=3'b111;
@@ -111,6 +109,86 @@ module CU(
                 `JR:begin
                     {Jump, JumpReg} = 2'b11;
                     end
+                `F_ADD:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_ADD;
+                end
+
+                `F_SUB:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_SUB;
+                end
+
+                `F_MULT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_MULT;
+                end
+
+                `F_DIV:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_DIV;                    
+                end
+
+                `F_NEGATE:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_NEGATE;                    
+                end
+
+                `F_ROUND:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_ROUND;                    
+                end
+
+                `F_FLOAT_TO_BINARY:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_FLOAT_TO_BINARY;                    
+                end
+
+                `F_BINARY_TO_FLOAT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_BINARY_TO_FLOAT;                    
+                end
+
+                `F_COMP_LT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_COMP_LT;                    
+                end
+
+                `F_COMP_LE:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_COMP_LE;                    
+                end
+
+                `F_COMP_EQ:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_COMP_EQ;                    
+                end
+
+                `F_COMP_NQ:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_COMP_NQ;                    
+                end
+
+                `F_COMP_GT:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_COMP_GT;                    
+                end
+
+                `F_COMP_GE:begin
+                    {FloatingPointWriteEnable, FPUorALU} = 2'b11;
+                    FPUOpcode = `FPU_COMP_GE;                    
+                end
+
+                `F_MOVE_TO_FLOAT:begin
+                    FloatingPointWriteEnable = 1;
+                    ALUOp = `ALU_ADD; // Zero + register
+                end
+
+                `F_MOVE_FROM_FLOAT:begin
+                    {RegDest, RegWrite, FPUorALU} = 3'b111;
+                    FPUOpcode = `FPU_ADD; // Zero + number
+                end
+        
                 default:begin
                     $display("UNKNOWN FUNC: %b", func);
                     Halted = 1'b1;
